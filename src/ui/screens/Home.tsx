@@ -5,7 +5,8 @@ import { getCards, deleteCard } from '../../pod/cards';
 import { Card } from '../../types';
 import { CardPreview } from '../components/CardPreview';
 import { Onboarding } from './Onboarding';
-import { LogOut, Loader2, PhoneCall, Plus } from 'lucide-react';
+import { ContactsScreen } from './Contacts';
+import { LogOut, Loader2, PhoneCall, Plus, Users } from 'lucide-react';
 
 export const Home = () => {
   const { session, userName, webId, logout } = useAuth();
@@ -13,6 +14,7 @@ export const Home = () => {
   const [cards, setCards] = useState<Card[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [showBuilder, setShowBuilder] = useState(false);
+  const [showContacts, setShowContacts] = useState(false);
 
   const loadCards = async () => {
     if (!session || !webId) return;
@@ -58,6 +60,10 @@ export const Home = () => {
     );
   }
 
+  if (showContacts) {
+    return <ContactsScreen onBack={() => setShowContacts(false)} />;
+  }
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 p-6">
       <header className="max-w-md mx-auto flex items-center justify-between py-6">
@@ -67,13 +73,22 @@ export const Home = () => {
           </div>
           <h1 className="text-xl font-bold tracking-tight">Call Me</h1>
         </div>
-        <button 
-          onClick={logout}
-          className="w-10 h-10 bg-zinc-900 hover:bg-zinc-800 rounded-xl flex items-center justify-center text-zinc-400 hover:text-red-400 transition-colors"
-          title="Sign out"
-        >
-          <LogOut size={18} />
-        </button>
+        <div className="flex items-center space-x-2">
+          <button 
+            onClick={() => setShowContacts(true)}
+            className="w-10 h-10 bg-zinc-900 hover:bg-zinc-800 rounded-xl flex items-center justify-center text-zinc-400 hover:text-blue-400 transition-colors"
+            title="Contacts"
+          >
+            <Users size={18} />
+          </button>
+          <button 
+            onClick={logout}
+            className="w-10 h-10 bg-zinc-900 hover:bg-zinc-800 rounded-xl flex items-center justify-center text-zinc-400 hover:text-red-400 transition-colors"
+            title="Sign out"
+          >
+            <LogOut size={18} />
+          </button>
+        </div>
       </header>
 
       <main className="max-w-md mx-auto mt-6">
