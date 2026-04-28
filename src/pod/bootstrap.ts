@@ -92,7 +92,7 @@ async function ensureResource(url: string, fetchFn: typeof fetch, createFn: () =
 }
 
 // Robust root discovery
-async function getPodRoot(url: string, fetchFn: typeof fetch): Promise<string | null> {
+export async function getPodRoot(url: string, fetchFn: typeof fetch): Promise<string | null> {
   const headRes = await fetchFn(url, { method: "HEAD" });
   const linkHeader = headRes.headers.get("Link") ?? "";
   if (linkHeader.includes("http://www.w3.org/ns/pim/space#Storage")) {
