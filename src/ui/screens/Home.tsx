@@ -8,6 +8,8 @@ import { Onboarding } from './Onboarding';
 import { ContactsScreen } from './Contacts';
 import { LogOut, Loader2, PhoneCall, Plus, Users } from 'lucide-react';
 
+import { useMatchWatcher } from '../../match/useMatchWatcher';
+
 export const Home = () => {
   const { session, userName, webId, logout } = useAuth();
   const [bootstrapping, setBootstrapping] = useState(true);
@@ -15,6 +17,8 @@ export const Home = () => {
   const [error, setError] = useState<string | null>(null);
   const [showBuilder, setShowBuilder] = useState(false);
   const [showContacts, setShowContacts] = useState(false);
+
+  const { matches, currentCity, status: matchStatus } = useMatchWatcher();
 
   const loadCards = async () => {
     if (!session || !webId) return;
@@ -98,6 +102,18 @@ export const Home = () => {
             {webId}
           </p>
         </div>
+
+        {currentCity && matchStatus === "done" && matches.length > 0 && (
+          <div className="mb-8 bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:bg-blue-500/20 transition-colors">
+            <div className="flex items-center space-x-3">
+              <span className="text-2xl">📍</span>
+              <div>
+                <h4 className="font-semibold text-blue-400">{currentCity} — away from home</h4>
+                <p className="text-sm text-zinc-300">You have {matches.length} contacts here. Want to say hi?</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         {error && (
            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl mb-8 text-sm">
