@@ -6,17 +6,21 @@ import { Card } from '../../types';
 import { CardPreview } from '../components/CardPreview';
 import { Onboarding } from './Onboarding';
 import { ContactsScreen } from './Contacts';
-import { LogOut, Loader2, PhoneCall, Plus, Users } from 'lucide-react';
-
+import { MatchSheet } from './MatchSheet';
+import { InboxScreen } from './Inbox';
 import { useMatchWatcher } from '../../match/useMatchWatcher';
+import { LogOut, Loader2, PhoneCall, Plus, Users, Inbox as InboxIcon } from 'lucide-react';
 
 export const Home = () => {
   const { session, userName, webId, logout } = useAuth();
   const [bootstrapping, setBootstrapping] = useState(true);
   const [cards, setCards] = useState<Card[]>([]);
   const [error, setError] = useState<string | null>(null);
+  
   const [showBuilder, setShowBuilder] = useState(false);
   const [showContacts, setShowContacts] = useState(false);
+  const [showInbox, setShowInbox] = useState(false);
+  const [showMatchSheet, setShowMatchSheet] = useState(false);
 
   const { matches, currentCity, status: matchStatus } = useMatchWatcher();
 
@@ -68,6 +72,10 @@ export const Home = () => {
     return <ContactsScreen onBack={() => setShowContacts(false)} />;
   }
 
+  if (showInbox) {
+    return <InboxScreen onBack={() => setShowInbox(false)} />;
+  }
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-50 p-6">
       <header className="max-w-md mx-auto flex items-center justify-between py-6">
@@ -78,6 +86,13 @@ export const Home = () => {
           <h1 className="text-xl font-bold tracking-tight">Call Me</h1>
         </div>
         <div className="flex items-center space-x-2">
+          <button 
+            onClick={() => setShowInbox(true)}
+            className="w-10 h-10 bg-zinc-900 hover:bg-zinc-800 rounded-xl flex items-center justify-center text-zinc-400 hover:text-blue-400 transition-colors"
+            title="Inbox"
+          >
+            <InboxIcon size={18} />
+          </button>
           <button 
             onClick={() => setShowContacts(true)}
             className="w-10 h-10 bg-zinc-900 hover:bg-zinc-800 rounded-xl flex items-center justify-center text-zinc-400 hover:text-blue-400 transition-colors"
@@ -104,7 +119,10 @@ export const Home = () => {
         </div>
 
         {currentCity && matchStatus === "done" && matches.length > 0 && (
-          <div className="mb-8 bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:bg-blue-500/20 transition-colors">
+          <div 
+            onClick={() => setShowMatchSheet(true)}
+            className="mb-8 bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:bg-blue-500/20 transition-colors"
+          >
             <div className="flex items-center space-x-3">
               <span className="text-2xl">📍</span>
               <div>
@@ -113,6 +131,13 @@ export const Home = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {showMatchSheet && (
+          <MatchSheet 
+            matches={matches} 
+            onClose={() => setShowMatchSheet(false)} 
+          />
         )}
 
         {error && (
