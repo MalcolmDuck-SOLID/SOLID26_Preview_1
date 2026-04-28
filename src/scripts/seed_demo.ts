@@ -3,7 +3,7 @@ import { updateLocation } from "../pod/location";
 
 // Requires `@inrupt/solid-client-authn-node` for server-to-pod auth
 // Run this file via `npx tsx src/scripts/seed_demo.ts`
-async function run() {
+export async function run() {
   const session = new Session();
   
   // NOTE: Inrupt requires creating a registered Client ID for Client Credentials flow.

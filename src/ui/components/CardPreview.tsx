@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { getSolidDataset, getThing, getStringNoLocale } from '@inrupt/solid-client';
-import { Card } from '../../types';
+import { getSolidDataset, getThing, getTermAll } from '@inrupt/solid-client';
+import type { Card } from '../../types';
 import { useAuth } from '../../auth/AuthContext';
-import { VOCAB } from '../../vocab';
+
+const PHOTO_PREDICATE = "http://www.w3.org/2006/vcard/ns#hasPhoto";
 
 interface CardPreviewProps {
   card: Card;
@@ -10,18 +11,56 @@ interface CardPreviewProps {
   onDelete?: (url: string) => void;
 }
 
-const fieldLabels: Record<string, string> = {
-  [VOCAB.FOAF.name]: 'Name',
-  [VOCAB.FOAF.age]: 'Age',
-  [VOCAB.VCARD.note]: 'Bio',
-  [VOCAB.FOAF.homepage]: 'Website',
-};
+/** Derive a human-readable label from a predicate URI */
+function fieldLabel(uri: string): string {
+  const KNOWN: Record<string, string> = {
+    "http://xmlns.com/foaf/0.1/name": "Name",
+    "http://xmlns.com/foaf/0.1/nick": "Nickname",
+    "http://xmlns.com/foaf/0.1/age": "Age",
+    "http://xmlns.com/foaf/0.1/homepage": "Website",
+    "http://www.w3.org/2006/vcard/ns#fn": "Full Name",
+    "http://www.w3.org/2006/vcard/ns#nickname": "Nickname",
+    "http://www.w3.org/2006/vcard/ns#bday": "Birthday",
+    "http://www.w3.org/2006/vcard/ns#role": "Role",
+    "http://www.w3.org/2006/vcard/ns#note": "Note",
+    "http://www.w3.org/2006/vcard/ns#hasPhoto": "Photo",
+    "http://www.w3.org/2006/vcard/ns#hasAddress": "Address",
+    "http://www.w3.org/2006/vcard/ns#organization-name": "Organisation",
+    "http://www.w3.org/2006/vcard/ns#locality": "City",
+    "http://www.w3.org/2006/vcard/ns#postal-code": "Postal Code",
+    "http://www.w3.org/2006/vcard/ns#street-address": "Street Address",
+  };
+  if (KNOWN[uri]) return KNOWN[uri];
+  const fragment = uri.split('#').pop()?.split('/').pop() || uri;
+  return fragment.replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase());
+}
 
-export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId }) => {
+export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDelete }) => {
   const { session } = useAuth();
   const [data, setData] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
+  const [bgDataUrl, setBgDataUrl] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
+  // Fetch background image as authenticated blob
+  useEffect(() => {
+    async function fetchBg() {
+      if (card.background && session) {
+        try {
+          const res = await session.fetch(card.background);
+          const blob = await res.blob();
+          setBgDataUrl(URL.createObjectURL(blob));
+        } catch(e) {
+          console.warn("Failed to fetch authenticated background image", e);
+        }
+      }
+    }
+    fetchBg();
+  }, [card.background, session]);
+
+  // Fetch profile data + photo
   useEffect(() => {
     async function loadCardData() {
       if (!session) return;
@@ -32,12 +71,26 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId }) =>
         if (profile) {
           const extracted: Record<string, string> = {};
           for (const field of card.fields) {
-            const val = getStringNoLocale(profile, field) || profile.urls[field];
-            if (val) {
-               extracted[field] = Array.isArray(val) ? val[0] : val;
+            const terms = getTermAll(profile, field);
+            if (terms.length > 0) {
+               extracted[field] = terms[0].value;
             }
           }
           setData(extracted);
+
+          // If hasPhoto is among the fields, resolve and fetch as blob
+          if (card.fields.includes(PHOTO_PREDICATE) && extracted[PHOTO_PREDICATE]) {
+            try {
+              // Resolve relative URL against profile document base
+              const profileDocUrl = ownerWebId.split('#')[0];
+              const photoAbsUrl = new URL(extracted[PHOTO_PREDICATE], profileDocUrl).href;
+              const res = await session.fetch(photoAbsUrl);
+              const blob = await res.blob();
+              setAvatarUrl(URL.createObjectURL(blob));
+            } catch (e) {
+              console.warn("Failed to fetch profile photo", e);
+            }
+          }
         }
       } catch (e) {
         console.error("Failed to load card values from", ownerWebId, e);
@@ -49,16 +102,36 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId }) =>
     loadCardData();
   }, [card, ownerWebId, session]);
 
+  // Fields to render as text rows (exclude the photo — it gets its own avatar)
+  const textFields = card.fields.filter(f => f !== PHOTO_PREDICATE);
+
   if (loading) {
-    return <div className="animate-pulse bg-zinc-900 rounded-2xl h-32 w-full border border-zinc-800"></div>;
+    return <div className="animate-pulse bg-white rounded-2xl h-32 w-full border border-stone-200"></div>;
   }
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-xl relative overflow-hidden group">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none fade-in"></div>
+    <div 
+      className="border border-stone-200 rounded-2xl p-6 shadow-xl relative overflow-hidden group"
+      style={bgDataUrl ? {
+        backgroundImage: `url(${bgDataUrl})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      } : { backgroundColor: 'white' }}
+    >
+      {bgDataUrl && <div className="absolute inset-0 bg-black/60 z-0"></div>}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none fade-in z-0"></div>
       
       <div className="flex justify-between items-start mb-4 relative z-10">
-        <h3 className="text-xl font-bold text-zinc-100">{card.label}</h3>
+        <div className="flex items-center space-x-3">
+          {avatarUrl && (
+            <img 
+              src={avatarUrl} 
+              alt="Profile" 
+              className="w-12 h-12 rounded-full object-cover border-2 border-white/80 shadow-md shrink-0"
+            />
+          )}
+          <h3 className={`text-xl font-bold ${bgDataUrl ? 'text-white' : 'text-stone-800'}`}>{card.label}</h3>
+        </div>
         <div className="flex items-center space-x-2">
           <div className="bg-blue-500/10 text-blue-400 text-xs px-2 py-1 flex items-center justify-center rounded border border-blue-500/20 h-6">
             Card
@@ -66,7 +139,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId }) =>
           {onDelete && (
             <button 
               onClick={() => onDelete(card.url)}
-              className="text-zinc-500 hover:text-red-400 p-1 flex items-center justify-center h-6 w-6 rounded hover:bg-red-500/10 transition-colors"
+              className={`${bgDataUrl ? 'text-stone-300' : 'text-stone-400'} hover:text-red-400 p-1 flex items-center justify-center h-6 w-6 rounded hover:bg-red-500/10 transition-colors`}
               title="Delete Card"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
@@ -76,20 +149,26 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId }) =>
       </div>
       
       <div className="space-y-3 relative z-10">
-        {card.fields.map(f => (
+        {textFields.map(f => (
           <div key={f} className="flex flex-col">
-            <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider mb-0.5">
-              {fieldLabels[f] || (f.split('#').pop()?.split('/').pop() || f)}
+            <span className={`text-xs ${bgDataUrl ? 'text-stone-300/80' : 'text-stone-500'} font-medium uppercase tracking-wider mb-0.5`}>
+              {fieldLabel(f)}
             </span>
-            <span className="text-zinc-200">
-              {data[f] || <span className="text-zinc-600 italic">Not set</span>}
+            <span className={`${bgDataUrl ? 'text-white' : 'text-stone-700'}`}>
+              {data[f] || <span className={`${bgDataUrl ? 'text-stone-400 opacity-80' : 'text-stone-400'} italic`}>Not set</span>}
             </span>
           </div>
         ))}
-        {card.fields.length === 0 && (
-          <p className="text-zinc-500 text-sm">No fields configured.</p>
+        {textFields.length === 0 && !avatarUrl && (
+          <p className={`${bgDataUrl ? 'text-stone-300' : 'text-stone-500'} text-sm`}>No fields configured.</p>
         )}
       </div>
+
+      {card.message && (
+        <div className={`mt-5 pt-4 border-t relative z-10 ${bgDataUrl ? 'border-white/20' : 'border-stone-100'}`}>
+           <p className={`italic ${bgDataUrl ? 'text-stone-100' : 'text-stone-600'}`}>"{card.message}"</p>
+        </div>
+      )}
     </div>
   );
 };

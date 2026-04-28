@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthContext';
 import { bootstrapPod, getPodRoot } from '../../pod/bootstrap';
 import { getCards, deleteCard } from '../../pod/cards';
-import { Card } from '../../types';
+import type { Card } from '../../types';
 import { CardPreview } from '../components/CardPreview';
 import { Onboarding } from './Onboarding';
 import { ContactsScreen } from './Contacts';
 import { MatchSheet } from './MatchSheet';
 import { InboxScreen } from './Inbox';
 import { useMatchWatcher } from '../../match/useMatchWatcher';
-import { LogOut, Loader2, PhoneCall, Plus, Users, Inbox as InboxIcon } from 'lucide-react';
+import { LogOut, Loader2, TramFront, Plus, Users, Inbox as InboxIcon } from 'lucide-react';
 
 export const Home = () => {
   const { session, userName, webId, logout } = useAuth();
@@ -61,9 +61,9 @@ export const Home = () => {
 
   if (bootstrapping) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center text-zinc-50">
+      <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center text-stone-900">
         <Loader2 className="animate-spin mb-4 text-blue-500" size={32} />
-        <p className="text-zinc-400">Loading your profile data...</p>
+        <p className="text-stone-500">Loading your profile data...</p>
       </div>
     );
   }
@@ -77,32 +77,32 @@ export const Home = () => {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-50 p-6">
+    <div className="min-h-screen bg-stone-50 text-stone-900 p-6">
       <header className="max-w-md mx-auto flex items-center justify-between py-6">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-zinc-900 rounded-xl flex items-center justify-center border border-zinc-800">
-            <PhoneCall size={20} className="text-blue-500" />
+          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-stone-200">
+            <TramFront size={20} className="text-blue-500" />
           </div>
           <h1 className="text-xl font-bold tracking-tight">Call Me</h1>
         </div>
         <div className="flex items-center space-x-2">
           <button 
             onClick={() => setShowInbox(true)}
-            className="w-10 h-10 bg-zinc-900 hover:bg-zinc-800 rounded-xl flex items-center justify-center text-zinc-400 hover:text-blue-400 transition-colors"
+            className="w-10 h-10 bg-white hover:bg-stone-100 rounded-xl flex items-center justify-center text-stone-500 hover:text-blue-400 transition-colors"
             title="Inbox"
           >
             <InboxIcon size={18} />
           </button>
           <button 
             onClick={() => setShowContacts(true)}
-            className="w-10 h-10 bg-zinc-900 hover:bg-zinc-800 rounded-xl flex items-center justify-center text-zinc-400 hover:text-blue-400 transition-colors"
+            className="w-10 h-10 bg-white hover:bg-stone-100 rounded-xl flex items-center justify-center text-stone-500 hover:text-blue-400 transition-colors"
             title="Contacts"
           >
             <Users size={18} />
           </button>
           <button 
             onClick={logout}
-            className="w-10 h-10 bg-zinc-900 hover:bg-zinc-800 rounded-xl flex items-center justify-center text-zinc-400 hover:text-red-400 transition-colors"
+            className="w-10 h-10 bg-white hover:bg-stone-100 rounded-xl flex items-center justify-center text-stone-500 hover:text-red-400 transition-colors"
             title="Sign out"
           >
             <LogOut size={18} />
@@ -113,7 +113,7 @@ export const Home = () => {
       <main className="max-w-md mx-auto mt-6">
         <div className="mb-8">
           <h2 className="text-3xl font-bold mb-2">Welcome, {userName || 'Traveler'}</h2>
-          <p className="text-zinc-500 text-sm break-all truncate">
+          <p className="text-stone-9000 text-sm break-all truncate">
             {webId}
           </p>
         </div>
@@ -127,7 +127,7 @@ export const Home = () => {
               <span className="text-2xl">📍</span>
               <div>
                 <h4 className="font-semibold text-blue-400">{currentCity} — away from home</h4>
-                <p className="text-sm text-zinc-300">You have {matches.length} contacts here. Want to say hi?</p>
+                <p className="text-sm text-stone-600">You have {matches.length} contacts here. Want to say hi?</p>
               </div>
             </div>
           </div>

@@ -12,8 +12,10 @@
   "dependencies": {
     "@inrupt/solid-client": "^1.23.1",
     "@inrupt/solid-client-authn-browser": "^4.0.0",
+    "@inrupt/solid-client-authn-node": "^1.12.1",
     "@inrupt/vocab-common-rdf": "^1.0.5",
     "@tailwindcss/vite": "^4.2.4",
+    "agentation": "^3.0.2",
     "lucide-react": "^1.11.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",

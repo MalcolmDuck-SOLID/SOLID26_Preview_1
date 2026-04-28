@@ -10,7 +10,7 @@ import {
   universalAccess
 } from "@inrupt/solid-client";
 import { VOCAB } from "../vocab";
-import { Contact } from "../types";
+import type { Contact } from "../types";
 
 export async function getContacts(podRoot: string, fetchFn: typeof fetch): Promise<Contact[]> {
   const contactsDocUrl = `${podRoot}callme/contacts.ttl`;
@@ -42,7 +42,7 @@ export async function getContacts(podRoot: string, fetchFn: typeof fetch): Promi
   }
 }
 
-export async function addContact(podRoot: string, myWebId: string, contactWebId: string, fetchFn: typeof fetch): Promise<void> {
+export async function addContact(podRoot: string, contactWebId: string, fetchFn: typeof fetch): Promise<void> {
   const contactsDocUrl = `${podRoot}callme/contacts.ttl`;
   let ds;
   try {
@@ -74,12 +74,11 @@ export async function addContact(podRoot: string, myWebId: string, contactWebId:
 
   // 3. Grant access to location.ttl
   const locationDocUrl = `${podRoot}callme/location.ttl`;
-  const groupUrl = `${contactsDocUrl}#contacts-group`;
   
   try {
-    await universalAccess.setGroupAccess(
+    await universalAccess.setAgentAccess(
       locationDocUrl,
-      groupUrl,
+      contactWebId,
       { read: true },
       { fetch: fetchFn }
     );

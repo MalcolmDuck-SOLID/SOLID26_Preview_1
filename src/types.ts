@@ -7,6 +7,8 @@ export interface Card {
   url: string;
   label: string;
   fields: string[]; // List of predicate URIs
+  background?: string;
+  message?: string;
 }
 
 export interface Contact {

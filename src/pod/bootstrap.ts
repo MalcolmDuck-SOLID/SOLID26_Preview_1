@@ -6,7 +6,8 @@ import {
   setThing,
   buildThing,
   createThing,
-  getThing
+  getThing,
+  getUrlAll
 } from "@inrupt/solid-client";
 import { VOCAB } from "../vocab";
 
@@ -23,13 +24,11 @@ export async function bootstrapPod(webId: string, fetchFn: typeof fetch) {
 
   const cmContainer = `${root}callme/`;
   const cardsContainer = `${cmContainer}cards/`;
+  const sharesContainer = `${cmContainer}shares/`;
   const locationDoc = `${cmContainer}location.ttl`;
   const contactsDoc = `${cmContainer}contacts.ttl`;
 
-  // 2. Create `/callme/` and `/callme/cards/` if absent. 
-  // `saveSolidDatasetAt` handles container creation nicely if we write inside it.
-  // But let's be explicit and try to read it, if 404, create it.
-  
+  // 2. Create `/callme/`, `/callme/cards/`, and `/callme/shares/` if absent. 
   try {
     await getSolidDataset(cmContainer, { fetch: fetchFn });
   } catch (err: any) {
@@ -43,6 +42,14 @@ export async function bootstrapPod(webId: string, fetchFn: typeof fetch) {
   } catch (err: any) {
     if (err.statusCode === 404) {
       await createContainerAt(cardsContainer, { fetch: fetchFn });
+    }
+  }
+
+  try {
+    await getSolidDataset(sharesContainer, { fetch: fetchFn });
+  } catch (err: any) {
+    if (err.statusCode === 404) {
+      await createContainerAt(sharesContainer, { fetch: fetchFn });
     }
   }
 
@@ -103,7 +110,7 @@ export async function getPodRoot(url: string, fetchFn: typeof fetch): Promise<st
     const dataset = await getSolidDataset(url, { fetch: fetchFn });
     const thing = getThing(dataset, url);
     if (thing) {
-      const storage = thing.urls["http://www.w3.org/ns/pim/space#storage"];
+      const storage = getUrlAll(thing, "http://www.w3.org/ns/pim/space#storage");
       if (storage?.length) return storage[0];
     }
   } catch {}

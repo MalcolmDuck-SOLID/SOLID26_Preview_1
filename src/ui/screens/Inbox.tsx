@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthContext';
-import { getInboxShares, fetchRemoteCard, ReceivedShare } from '../../pod/shares';
-import { Card } from '../../types';
+import { getInboxShares, getSentShares, fetchRemoteCard } from '../../pod/shares';
+import { getPodRoot } from '../../pod/bootstrap';
+import type { ReceivedShare } from '../../pod/shares';
+import type { Card } from '../../types';
 import { CardPreview } from '../components/CardPreview';
-import { ArrowLeft, Inbox as InboxIcon, Loader2 } from 'lucide-react';
+import { ArrowLeft, Inbox as InboxIcon, Loader2, ExternalLink, Copy, Check, Send } from 'lucide-react';
 
 interface InboxScreenProps {
   onBack: () => void;
@@ -12,28 +14,43 @@ interface InboxScreenProps {
 export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
   const { session, webId } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [shares, setShares] = useState<{ id: string, share: ReceivedShare, card: Card | null }[]>([]);
+  const [tab, setTab] = useState<'received' | 'sent'>('received');
+  const [received, setReceived] = useState<{ id: string, share: ReceivedShare, card: Card | null }[]>([]);
+  const [sent, setSent] = useState<{ id: string, share: ReceivedShare, card: Card | null }[]>([]);
+  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
       if (!session || !webId) return;
       try {
+        // Load received (from LDN inbox)
         const inboxShares = await getInboxShares(webId, session.fetch);
-        
-        // Resolve Cards
-        const resolved = await Promise.all(inboxShares.map(async s => {
+        const resolvedReceived = await Promise.all(inboxShares.map(async s => {
           const card = await fetchRemoteCard(s.cardUrl, session.fetch);
           return { id: s.url, share: s, card };
         }));
-
-        // Sort descending slightly naively
-        resolved.sort((a, b) => {
+        resolvedReceived.sort((a, b) => {
           if (!a.share.sharedAt) return 1;
           if (!b.share.sharedAt) return -1;
           return new Date(b.share.sharedAt).getTime() - new Date(a.share.sharedAt).getTime();
         });
+        setReceived(resolvedReceived);
 
-        setShares(resolved);
+        // Load sent (from local /callme/shares/)
+        const root = await getPodRoot(webId, session.fetch);
+        if (root) {
+          const sentShares = await getSentShares(root, session.fetch);
+          const resolvedSent = await Promise.all(sentShares.map(async s => {
+            const card = await fetchRemoteCard(s.cardUrl, session.fetch);
+            return { id: s.url, share: s, card };
+          }));
+          resolvedSent.sort((a, b) => {
+            if (!a.share.sharedAt) return 1;
+            if (!b.share.sharedAt) return -1;
+            return new Date(b.share.sharedAt).getTime() - new Date(a.share.sharedAt).getTime();
+          });
+          setSent(resolvedSent);
+        }
       } catch (e) {
         console.error("Failed to load inbox", e);
       } finally {
@@ -44,41 +61,100 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
     load();
   }, [session, webId]);
 
+  const getShareUrl = (cardUrl: string, senderWebId: string) => {
+    const base = window.location.origin + window.location.pathname;
+    return `${base}?card=${encodeURIComponent(cardUrl)}&from=${encodeURIComponent(senderWebId)}`;
+  };
+
+  const handleCopy = (cardUrl: string, senderWebId: string) => {
+    const url = getShareUrl(cardUrl, senderWebId);
+    navigator.clipboard.writeText(url);
+    setCopiedUrl(cardUrl);
+    setTimeout(() => setCopiedUrl(null), 2000);
+  };
+
+  const currentShares = tab === 'received' ? received : sent;
+
   return (
-    <div className="bg-zinc-950 min-h-screen text-zinc-50 p-6">
+    <div className="bg-stone-50 min-h-screen text-stone-900 p-6">
       <div className="max-w-md mx-auto">
         <button 
           onClick={onBack}
-          className="flex items-center text-zinc-400 hover:text-zinc-200 mb-6 transition-colors"
+          className="flex items-center text-stone-500 hover:text-stone-700 mb-6 transition-colors"
         >
           <ArrowLeft size={20} className="mr-2" /> Back
         </button>
 
-        <div className="flex items-center space-x-3 mb-8">
+        <div className="flex items-center space-x-3 mb-6">
           <div className="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center">
             <InboxIcon size={24} />
           </div>
           <h2 className="text-3xl font-bold tracking-tight">Inbox</h2>
         </div>
 
+        {/* Tabs */}
+        <div className="flex space-x-2 mb-8">
+          <button
+            onClick={() => setTab('received')}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+              tab === 'received' ? 'bg-blue-500 text-white' : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-50'
+            }`}
+          >
+            <InboxIcon size={14} className="inline mr-1.5 -mt-0.5" />
+            Received {received.length > 0 && `(${received.length})`}
+          </button>
+          <button
+            onClick={() => setTab('sent')}
+            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+              tab === 'sent' ? 'bg-blue-500 text-white' : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-50'
+            }`}
+          >
+            <Send size={14} className="inline mr-1.5 -mt-0.5" />
+            Sent {sent.length > 0 && `(${sent.length})`}
+          </button>
+        </div>
+
         {loading ? (
-          <div className="flex justify-center p-8 text-zinc-500"><Loader2 className="animate-spin" size={32} /></div>
-        ) : shares.length === 0 ? (
-          <div className="text-center p-8 bg-zinc-900 border border-dashed border-zinc-800 rounded-2xl text-zinc-500">
-            <p className="mb-2">Your inbox is empty.</p>
-            <p className="text-sm">When a contact shares a card, it appears here.</p>
+          <div className="flex justify-center p-8 text-stone-500"><Loader2 className="animate-spin" size={32} /></div>
+        ) : currentShares.length === 0 ? (
+          <div className="text-center p-8 bg-white border border-dashed border-stone-200 rounded-2xl text-stone-500">
+            <p className="mb-2">{tab === 'received' ? 'No cards received yet.' : 'No cards shared yet.'}</p>
+            <p className="text-sm">{tab === 'received' ? 'When a contact shares a card, it appears here.' : 'Share a card from your Contacts to see it here.'}</p>
           </div>
         ) : (
           <div className="space-y-6">
-            {shares.map(({ id, share, card }) => (
+            {currentShares.map(({ id, share, card }) => (
                <div key={id} className="relative">
-                 <div className="mb-2 text-sm text-zinc-400 flex items-center justify-between">
-                   <span className="truncate flex-1 max-w-[200px]" title={share.senderWebId}>From {share.senderWebId.split('/').slice(-2, -1)[0] || share.senderWebId}</span>
+                 <div className="mb-2 text-sm text-stone-500 flex items-center justify-between">
+                   <span className="truncate flex-1 max-w-[200px]" title={share.senderWebId}>
+                     {tab === 'received' ? 'From ' : 'To '}
+                     {share.senderWebId.split('/').slice(-2, -1)[0] || share.senderWebId}
+                   </span>
                    {share.sharedAt && <span>{new Date(share.sharedAt).toLocaleDateString()}</span>}
                  </div>
                  
                  {card ? (
-                   <CardPreview card={card} ownerWebId={share.senderWebId} />
+                   <>
+                     <CardPreview card={card} ownerWebId={tab === 'received' ? share.senderWebId : webId!} />
+                     <div className="flex space-x-2 mt-3">
+                       <a
+                         href={getShareUrl(share.cardUrl, tab === 'sent' ? webId! : share.senderWebId)}
+                         target="_blank"
+                         rel="noopener noreferrer"
+                         className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-white border border-stone-200 rounded-xl text-sm font-medium text-stone-700 hover:bg-stone-50 hover:border-stone-300 transition-colors"
+                       >
+                         <ExternalLink size={14} />
+                         <span>View Card</span>
+                       </a>
+                       <button
+                         onClick={() => handleCopy(share.cardUrl, tab === 'sent' ? webId! : share.senderWebId)}
+                         className="flex items-center justify-center space-x-2 py-2.5 px-4 bg-white border border-stone-200 rounded-xl text-sm font-medium text-stone-700 hover:bg-stone-50 hover:border-stone-300 transition-colors"
+                       >
+                         {copiedUrl === share.cardUrl ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
+                         <span>{copiedUrl === share.cardUrl ? 'Copied!' : 'Copy Link'}</span>
+                       </button>
+                     </div>
+                   </>
                  ) : (
                    <div className="p-4 bg-red-500/10 text-red-400 rounded-xl border border-red-500/20 text-sm">
                      Access to this card was revoked or the card is unavailable.

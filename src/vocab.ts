@@ -1,4 +1,4 @@
-import { FOAF, VCARD, SCHEMA_INRUPT } from "@inrupt/vocab-common-rdf";
+import { FOAF, VCARD } from "@inrupt/vocab-common-rdf";
 
 export const CM = "https://callme.app/ns#";
 
@@ -11,6 +11,8 @@ export const VOCAB = {
     sharedCard: `${CM}sharedCard`,
     shareTarget: `${CM}shareTarget`,
     sharedAt: `${CM}sharedAt`,
+    hasBackground: `${CM}hasBackground`,
+    message: `${CM}message`,
     currentCity: `${CM}currentCity`,
     homeCity: `${CM}homeCity`,
   },
@@ -20,11 +22,16 @@ export const VOCAB = {
     knows: FOAF.knows,
     homepage: FOAF.homepage,
     Person: FOAF.Person,
+    nick: FOAF.nick,
   },
   VCARD: {
     note: VCARD.note,
     Group: VCARD.Group,
     hasMember: VCARD.hasMember,
+    fn: VCARD.fn,
+    bday: VCARD.bday,
+    role: VCARD.role,
+    hasPhoto: VCARD.hasPhoto,
   },
   SCHEMA: {
     homeLocation: "https://schema.org/homeLocation",

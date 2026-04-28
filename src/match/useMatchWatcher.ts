@@ -3,7 +3,8 @@ import { useAuth } from '../auth/AuthContext';
 import { getPodRoot } from '../pod/bootstrap';
 import { updateLocation, getLocation } from '../pod/location';
 import { getContacts } from '../pod/contacts';
-import { findMatches, MatchResult } from './findMatches';
+import { findMatches } from './findMatches';
+import type { MatchResult } from './findMatches';
 import { getCurrentCoordinates, getCityFromCoords } from '../geo/geolocation';
 
 export function useMatchWatcher() {
