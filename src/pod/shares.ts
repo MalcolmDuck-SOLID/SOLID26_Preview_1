@@ -329,6 +329,7 @@ export async function fetchRemoteCard(cardUrl: string, fetchFn: typeof fetch): P
         label: getStringNoLocale(cardThing, VOCAB.CM.label) || "Shared Card",
         fields: getUrlAll(cardThing, VOCAB.CM.hasField),
         background: getUrlAll(cardThing, VOCAB.CM.hasBackground)[0],
+        color: getStringNoLocale(cardThing, VOCAB.CM.cardColor) || undefined,
         backgroundData,
         message: getStringNoLocale(cardThing, VOCAB.CM.message) || undefined,
         photoData,

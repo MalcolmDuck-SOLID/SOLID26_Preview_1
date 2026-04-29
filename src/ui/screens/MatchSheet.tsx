@@ -54,7 +54,7 @@ export const MatchSheet: React.FC<MatchSheetProps> = ({ matches, onClose }) => {
           <X size={24} />
         </button>
         
-        <h3 className="text-2xl font-bold text-stone-900 mb-6">Found in the Wild</h3>
+        <h3 className="text-2xl font-bold text-stone-900 mb-6">In Town</h3>
         
         {success ? (
           <div className="bg-green-500/10 border border-green-500/30 text-green-400 p-6 rounded-none text-center">
