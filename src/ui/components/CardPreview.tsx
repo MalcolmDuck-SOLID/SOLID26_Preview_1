@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getSolidDataset, getThing, getTermAll } from '@inrupt/solid-client';
+import { getSolidDataset, getThing, getTermAll, getStringNoLocale, getUrl } from '@inrupt/solid-client';
 import type { Card } from '../../types';
 import { useAuth } from '../../auth/AuthContext';
 
@@ -89,7 +89,32 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDe
           for (const field of card.fields) {
             const terms = getTermAll(profile, field);
             if (terms.length > 0) {
-               extracted[field] = terms[0].value;
+               let valStr = terms[0].value;
+               
+               if (terms[0].termType === 'NamedNode' || terms[0].termType === 'BlankNode') {
+                 const subThing = getThing(dataset, valStr);
+                 if (subThing) {
+                   if (field === "http://www.w3.org/2006/vcard/ns#hasAddress") {
+                     const parts = [];
+                     const street = getStringNoLocale(subThing, "http://www.w3.org/2006/vcard/ns#street-address");
+                     const city = getStringNoLocale(subThing, "http://www.w3.org/2006/vcard/ns#locality");
+                     const region = getStringNoLocale(subThing, "http://www.w3.org/2006/vcard/ns#region");
+                     const zip = getStringNoLocale(subThing, "http://www.w3.org/2006/vcard/ns#postal-code");
+                     const country = getStringNoLocale(subThing, "http://www.w3.org/2006/vcard/ns#country-name");
+                     if (street) parts.push(street);
+                     if (city) parts.push(city);
+                     if (region) parts.push(region);
+                     if (zip) parts.push(zip);
+                     if (country) parts.push(country);
+                     if (parts.length > 0) valStr = parts.join(", ");
+                   } else {
+                     const vcardValue = getStringNoLocale(subThing, "http://www.w3.org/2006/vcard/ns#value") || getUrl(subThing, "http://www.w3.org/2006/vcard/ns#value");
+                     if (vcardValue) valStr = vcardValue;
+                   }
+                 }
+               }
+               
+               extracted[field] = valStr;
             }
           }
           setData(extracted);
