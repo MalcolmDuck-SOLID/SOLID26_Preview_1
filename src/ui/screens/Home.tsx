@@ -33,6 +33,7 @@ export const Home = () => {
 
   const activeCity = demoCity || currentCity;
   const activeMatches = demoMatches || matches;
+  const isAway = activeCity && profileLocation ? !activeCity.toLowerCase().includes(profileLocation.toLowerCase()) : !!activeCity;
 
   const triggerDemo = async () => {
     if (!session || !webId) return;
@@ -185,7 +186,7 @@ export const Home = () => {
       </header>
 
       <main className="max-w-md mx-auto mt-6">
-        {activeCity && (matchStatus === "done" || demoCity) && activeMatches.length > 0 && (
+        {isAway && (matchStatus === "done" || demoCity) && activeMatches.length > 0 && (
           <div 
             onClick={() => setShowMatchSheet(true)}
             className="mb-8 bg-stone-500/10 border border-stone-500/30 rounded-none p-4 flex items-center justify-between cursor-pointer hover:bg-stone-500/20 transition-colors"
