@@ -11,7 +11,8 @@ import {
   createThing,
   setThing,
   createSolidDataset,
-  saveSolidDatasetAt
+  saveSolidDatasetAt,
+  getDatetime
 } from "@inrupt/solid-client";
 import { VOCAB } from "../vocab";
 import type { Card } from "../types";
@@ -94,7 +95,8 @@ export async function shareCard(cardUrl: string, targetWebId: string, senderWebI
   const fields = getUrlAll(cardThing, VOCAB.CM.hasField);
   const bgUrl = getUrl(cardThing, VOCAB.CM.hasBackground) || getStringNoLocale(cardThing, VOCAB.CM.hasBackground);
   const message = getStringNoLocale(cardThing, VOCAB.CM.message);
-  console.log("[shareCard] Card data:", { label, fields: fields.length, bgUrl: !!bgUrl, message: !!message });
+  const cardColor = getStringNoLocale(cardThing, VOCAB.CM.cardColor);
+  console.log("[shareCard] Card data:", { label, fields: fields.length, bgUrl: !!bgUrl, message: !!message, cardColor });
 
   // 2. Fetch background image as base64
   let backgroundData: string | null = null;
@@ -155,6 +157,9 @@ export async function shareCard(cardUrl: string, targetWebId: string, senderWebI
   }
   if (photoData) {
     sharedCard = sharedCard.addStringNoLocale(VOCAB.CM.photoData, photoData);
+  }
+  if (cardColor) {
+    sharedCard = sharedCard.addStringNoLocale(VOCAB.CM.cardColor, cardColor);
   }
 
   let ds = setThing(createSolidDataset(), sharedCard.build());
@@ -230,11 +235,12 @@ export async function getSentShares(podRoot: string, fetchFn: typeof fetch): Pro
           const cardUrl = getUrl(shareThing, VOCAB.CM.sharedCard);
           const target = getUrl(shareThing, VOCAB.CM.shareTarget);
           if (cardUrl && target) {
+            const dt = getDatetime(shareThing, VOCAB.CM.sharedAt);
             shares.push({
               url,
               cardUrl,
               senderWebId: target,
-              sharedAt: getStringNoLocale(shareThing, VOCAB.CM.sharedAt)
+              sharedAt: dt ? dt.toISOString() : (getStringNoLocale(shareThing, VOCAB.CM.sharedAt) || null)
             });
           }
         }
@@ -285,11 +291,12 @@ export async function getInboxShares(myWebId: string, fetchFn: typeof fetch): Pr
           const parsed = new URL(cardUrl);
           const senderWebId = `${parsed.origin}/profile/card#me`;
 
+          const dt = getDatetime(shareThing, VOCAB.CM.sharedAt);
           shares.push({
             url,
             cardUrl,
             senderWebId,
-            sharedAt: getStringNoLocale(shareThing, VOCAB.CM.sharedAt)
+            sharedAt: dt ? dt.toISOString() : (getStringNoLocale(shareThing, VOCAB.CM.sharedAt) || null)
           });
         }
       }

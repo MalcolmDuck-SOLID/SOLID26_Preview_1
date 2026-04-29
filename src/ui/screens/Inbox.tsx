@@ -141,12 +141,15 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
                      {tab === 'received' ? 'From ' : 'To '}
                      {share.senderWebId.split('/').slice(-2, -1)[0] || share.senderWebId}
                    </span>
-                   {share.sharedAt && <span>{new Date(share.sharedAt).toLocaleDateString()}</span>}
                  </div>
                  
                  {card ? (
                    <>
-                     <CardPreview card={card} ownerWebId={tab === 'received' ? share.senderWebId : webId!} />
+                     <CardPreview 
+                       card={card} 
+                       ownerWebId={tab === 'received' ? share.senderWebId : webId!} 
+                       timestamp={share.sharedAt || undefined}
+                     />
                      <div className="flex space-x-2 mt-3">
                        <a
                          href={getShareUrl(share.cardUrl, tab === 'sent' ? webId! : share.senderWebId)}

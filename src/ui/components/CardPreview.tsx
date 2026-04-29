@@ -9,6 +9,7 @@ interface CardPreviewProps {
   card: Card;
   ownerWebId: string;
   onDelete?: (url: string) => void;
+  timestamp?: string;
 }
 
 /** Derive a human-readable label from a predicate URI */
@@ -37,7 +38,7 @@ function fieldLabel(uri: string): string {
     .replace(/\b\w/g, c => c.toUpperCase());
 }
 
-export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDelete }) => {
+export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDelete, timestamp }) => {
   const { session } = useAuth();
   const [data, setData] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -146,6 +147,11 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDe
           <h3 className={`text-xl font-bold ${bgDataUrl ? 'text-white' : 'text-stone-800'}`}>{card.label}</h3>
         </div>
         <div className="flex items-center space-x-2">
+          {timestamp && (
+            <div className={`text-[10px] uppercase tracking-widest ${bgDataUrl ? 'text-stone-300/80' : 'text-stone-400'}`}>
+              {new Date(timestamp).toLocaleDateString()}
+            </div>
+          )}
           <div className="bg-stone-500/10 text-stone-400 text-xs px-2 py-1 flex items-center justify-center rounded-none border border-stone-500/20 h-6">
             Card
           </div>
