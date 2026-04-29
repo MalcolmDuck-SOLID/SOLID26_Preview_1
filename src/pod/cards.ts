@@ -138,9 +138,9 @@ export async function getCards(podRoot: string, fetchFn: typeof fetch): Promise<
 /**
  * Save a new cm:Card mapping
  */
-export async function saveCard(podRoot: string, cardName: string, label: string, fields: string[], background: string | undefined, message: string | undefined, color: string | undefined, fetchFn: typeof fetch): Promise<string> {
+export async function saveCard(podRoot: string, cardName: string, label: string, fields: string[], background: string | undefined, message: string | undefined, color: string | undefined, fetchFn: typeof fetch, overwriteUrl?: string): Promise<string> {
   const cleanName = cardName.toLowerCase().replace(/[^a-z0-9]/g, '');
-  const cardUrl = `${podRoot}callme/cards/${cleanName}.ttl`;
+  const cardUrl = overwriteUrl || `${podRoot}callme/cards/${cleanName}.ttl`;
 
   let cardThing = buildThing(createThing({ name: "card" }))
     .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", VOCAB.CM.Card)

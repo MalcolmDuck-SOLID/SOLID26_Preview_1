@@ -3,23 +3,28 @@ import { useAuth } from '../../auth/AuthContext';
 import { getProfileFields, saveCard } from '../../pod/cards';
 import { getPodRoot } from '../../pod/bootstrap';
 import { getSolidDataset, getContainedResourceUrlAll } from '@inrupt/solid-client';
-import { Check, Plus, Loader2 } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import { VOCAB } from '../../vocab';
+
+import type { Card } from '../../types';
 
 interface OnboardingProps {
   onComplete: () => void;
+  editCard?: Card;
 }
 
-export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
+export const Onboarding: React.FC<OnboardingProps> = ({ onComplete, editCard }) => {
   const { session, webId } = useAuth();
   const [fields, setFields] = useState<{uri: string, label: string, value: string}[]>([]);
-  const [selectedFields, setSelectedFields] = useState<Set<string>>(new Set([VOCAB.FOAF.name]));
-  const [cardName, setCardName] = useState('Personal');
-  const [message, setMessage] = useState('');
+  const [selectedFields, setSelectedFields] = useState<Set<string>>(
+    editCard ? new Set(editCard.fields) : new Set([VOCAB.FOAF.name])
+  );
+  const [cardName, setCardName] = useState(editCard ? editCard.label : 'Personal');
+  const [message, setMessage] = useState(editCard?.message || '');
   const [backgrounds, setBackgrounds] = useState<string[]>([]);
   const [bgBlobUrls, setBgBlobUrls] = useState<Record<string, string>>({});
-  const [selectedBackground, setSelectedBackground] = useState<string | null>(null);
-  const [cardColor, setCardColor] = useState<string>('#F0EAD6'); // Default to Eggshell White
+  const [selectedBackground, setSelectedBackground] = useState<string | null>(editCard?.background || null);
+  const [cardColor, setCardColor] = useState<string>(editCard?.color || '#F0EAD6');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -82,7 +87,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       // For simplicity, let's do naive root or export the one from bootstrap
       const root = await getPodRoot(webId, session.fetch);
       if (root) {
-        await saveCard(root, cardName, cardName, Array.from(selectedFields), selectedBackground || undefined, message.trim() || undefined, cardColor, session.fetch);
+        await saveCard(root, cardName, cardName, Array.from(selectedFields), selectedBackground || undefined, message.trim() || undefined, cardColor, session.fetch, editCard?.url);
         onComplete();
       }
     } catch (e) {
@@ -107,10 +112,8 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
   return (
     <div className="bg-white border border-stone-200 rounded-none p-6 shadow-2xl">
-      <h2 className="text-2xl font-bold text-stone-900 mb-2">Create a Card</h2>
-      <p className="text-stone-500 mb-6 text-sm">
-        A card is a contextual projection of your profile. Pick which fields this card will expose.
-      </p>
+      <h2 className="text-2xl font-bold text-stone-900 mb-2">{editCard ? 'Edit Card' : 'Create a Card'}</h2>
+      <p className="text-stone-500 mb-8">{editCard ? 'Make changes to your card details.' : 'Select the profile fields you want to share.'}</p>
 
       <div className="mb-6">
         <label className="block text-sm font-medium text-stone-500 mb-2">Card Name</label>
@@ -218,10 +221,11 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
 
       <button 
         onClick={handleSave}
-        disabled={saving || !cardName}
-        className="w-full bg-stone-600 hover:bg-stone-500 disabled:opacity-50 text-white font-medium py-4 px-4 rounded-none flex items-center justify-center transition-colors"
+        disabled={saving || !cardName.trim() || selectedFields.size === 0}
+        className="w-full bg-stone-600 hover:bg-stone-500 disabled:opacity-50 text-white font-medium py-3 px-4 rounded-none flex items-center justify-center transition-colors mt-8"
       >
-        {saving ? <Loader2 className="animate-spin" size={20} /> : <><Plus size={20} className="mr-2" /> Save Card</>}
+        {saving ? <Loader2 className="animate-spin mr-2" size={20} /> : <Check size={20} className="mr-2" />}
+        {editCard ? 'Save Changes' : 'Create Card'}
       </button>
     </div>
   );

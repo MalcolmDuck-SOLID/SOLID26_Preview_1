@@ -9,6 +9,7 @@ interface CardPreviewProps {
   card: Card;
   ownerWebId: string;
   onDelete?: (url: string) => void;
+  onEdit?: (url: string) => void;
   timestamp?: string;
 }
 
@@ -38,7 +39,7 @@ function fieldLabel(uri: string): string {
     .replace(/\b\w/g, c => c.toUpperCase());
 }
 
-export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDelete, timestamp }) => {
+export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDelete, onEdit, timestamp }) => {
   const { session } = useAuth();
   const [data, setData] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -182,6 +183,15 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDe
           <div className="bg-stone-500/10 text-stone-400 text-xs px-2 py-1 flex items-center justify-center rounded-none border border-stone-500/20 h-6">
             Card
           </div>
+          {onEdit && (
+            <button 
+              onClick={() => onEdit(card.url)}
+              className={`${bgDataUrl ? 'text-stone-300' : 'text-stone-400'} hover:text-stone-700 p-1 flex items-center justify-center h-6 w-6 rounded-none hover:bg-stone-500/10 transition-colors`}
+              title="Edit Card"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+            </button>
+          )}
           {onDelete && (
             <button 
               onClick={() => onDelete(card.url)}

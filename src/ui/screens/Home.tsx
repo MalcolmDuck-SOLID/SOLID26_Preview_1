@@ -27,6 +27,7 @@ export const Home = () => {
   const [demoCity, setDemoCity] = useState<string | null>(null);
   const [demoMatches, setDemoMatches] = useState<MatchResult[] | null>(null);
   const [profileLocation, setProfileLocation] = useState<string | null>(null);
+  const [editingCard, setEditingCard] = useState<Card | null>(null);
 
   const { matches, currentCity, status: matchStatus } = useMatchWatcher();
 
@@ -212,20 +213,27 @@ export const Home = () => {
            </div>
         )}
 
-        {showBuilder || cards.length === 0 ? (
+        {showBuilder || editingCard || cards.length === 0 ? (
           <div>
             {cards.length > 0 && (
               <button 
-                onClick={() => setShowBuilder(false)}
+                onClick={() => {
+                  setShowBuilder(false);
+                  setEditingCard(null);
+                }}
                 className="text-stone-400 text-sm mb-4 font-medium"
               >
                 ← Back to cards
               </button>
             )}
-            <Onboarding onComplete={() => {
-              setShowBuilder(false);
-              loadCards();
-            }} />
+            <Onboarding 
+              editCard={editingCard || undefined}
+              onComplete={() => {
+                setShowBuilder(false);
+                setEditingCard(null);
+                loadCards();
+              }} 
+            />
           </div>
         ) : (
           <div>
@@ -241,7 +249,13 @@ export const Home = () => {
             
             <div className="space-y-6">
               {cards.map(card => (
-                 <CardPreview key={card.url} card={card} ownerWebId={webId!} onDelete={handleDeleteCard} />
+                 <CardPreview 
+                   key={card.url} 
+                   card={card} 
+                   ownerWebId={webId!} 
+                   onDelete={handleDeleteCard}
+                   onEdit={(url) => setEditingCard(cards.find(c => c.url === url)!)}
+                 />
               ))}
             </div>
             
