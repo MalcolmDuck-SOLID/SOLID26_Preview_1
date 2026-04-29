@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthContext';
-import { getInboxShares, getSentShares, fetchRemoteCard } from '../../pod/shares';
+import { getInboxShares, getSentShares, fetchRemoteCard, deleteShare } from '../../pod/shares';
 import { getPodRoot } from '../../pod/bootstrap';
 import type { ReceivedShare } from '../../pod/shares';
 import type { Card } from '../../types';
 import { CardPreview } from '../components/CardPreview';
-import { ArrowLeft, Inbox as InboxIcon, Loader2, ExternalLink, Copy, Check, Send } from 'lucide-react';
+import { ArrowLeft, Inbox as InboxIcon, Loader2, ExternalLink, Copy, Check, Send, Trash2 } from 'lucide-react';
 
 interface InboxScreenProps {
   onBack: () => void;
@@ -71,6 +71,17 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
     navigator.clipboard.writeText(url);
     setCopiedUrl(cardUrl);
     setTimeout(() => setCopiedUrl(null), 2000);
+  };
+
+  const handleDelete = async (shareUrl: string) => {
+    if (!session) return;
+    try {
+      await deleteShare(shareUrl, session.fetch);
+      setReceived(prev => prev.filter(s => s.share.url !== shareUrl));
+      setSent(prev => prev.filter(s => s.share.url !== shareUrl));
+    } catch (e) {
+      console.error("Failed to delete share", e);
+    }
   };
 
   const currentShares = tab === 'received' ? received : sent;
@@ -153,11 +164,25 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
                          {copiedUrl === share.cardUrl ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
                          <span>{copiedUrl === share.cardUrl ? 'Copied!' : 'Copy Link'}</span>
                        </button>
+                       <button
+                         onClick={() => handleDelete(share.url)}
+                         className="flex items-center justify-center py-2.5 px-3 bg-white border border-red-200 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 hover:border-red-300 transition-colors"
+                         title="Delete"
+                       >
+                         <Trash2 size={14} />
+                       </button>
                      </div>
                    </>
                  ) : (
-                   <div className="p-4 bg-red-500/10 text-red-400 rounded-xl border border-red-500/20 text-sm">
-                     Access to this card was revoked or the card is unavailable.
+                   <div className="flex items-center justify-between p-4 bg-red-500/10 text-red-400 rounded-xl border border-red-500/20 text-sm">
+                     <span>Access to this card was revoked or the card is unavailable.</span>
+                     <button
+                       onClick={() => handleDelete(share.url)}
+                       className="ml-3 p-1.5 rounded-lg hover:bg-red-500/20 transition-colors"
+                       title="Delete"
+                     >
+                       <Trash2 size={14} />
+                     </button>
                    </div>
                  )}
                </div>

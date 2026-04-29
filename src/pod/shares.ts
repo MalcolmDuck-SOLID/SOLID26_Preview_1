@@ -200,6 +200,10 @@ export async function getInboxShares(myWebId: string, fetchFn: typeof fetch): Pr
   return shares;
 }
 
+export async function deleteShare(shareUrl: string, fetchFn: typeof fetch): Promise<void> {
+  await fetchFn(shareUrl, { method: "DELETE" });
+}
+
 export async function fetchRemoteCard(cardUrl: string, fetchFn: typeof fetch): Promise<Card | null> {
   try {
     const ds = await getSolidDataset(cardUrl, { fetch: fetchFn });
