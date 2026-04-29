@@ -151,7 +151,7 @@ export const Home = () => {
             <Feather size={20} className="text-stone-500" />
           </div>
           <div className="flex flex-col justify-center">
-            <h1 className="text-2xl font-serif leading-none mt-1">Bunbary</h1>
+            <h1 className="text-2xl font-serif leading-none mt-1">Bunbury</h1>
             {(demoCity || profileLocation) && (
               <span className="text-[10px] text-stone-400 uppercase tracking-wider mt-1 flex items-center">
                 <MapPin size={10} className="mr-1" /> {demoCity || profileLocation}
