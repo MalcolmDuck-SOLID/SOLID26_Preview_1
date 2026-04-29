@@ -9,7 +9,9 @@ import { ContactsScreen } from './Contacts';
 import { MatchSheet } from './MatchSheet';
 import { InboxScreen } from './Inbox';
 import { useMatchWatcher } from '../../match/useMatchWatcher';
-import { LogOut, Loader2, Feather, Plus, Users, Inbox as InboxIcon } from 'lucide-react';
+import type { MatchResult } from '../../match/findMatches';
+import { getContacts } from '../../pod/contacts';
+import { LogOut, Loader2, Feather, Plus, Users, Inbox as InboxIcon, MapPin } from 'lucide-react';
 
 export const Home = () => {
   const { session, webId, logout } = useAuth();
@@ -21,8 +23,41 @@ export const Home = () => {
   const [showContacts, setShowContacts] = useState(false);
   const [showInbox, setShowInbox] = useState(false);
   const [showMatchSheet, setShowMatchSheet] = useState(false);
+  const [demoCity, setDemoCity] = useState<string | null>(null);
+  const [demoMatches, setDemoMatches] = useState<MatchResult[] | null>(null);
 
   const { matches, currentCity, status: matchStatus } = useMatchWatcher();
+
+  const activeCity = demoCity || currentCity;
+  const activeMatches = demoMatches || matches;
+
+  const triggerDemo = async () => {
+    if (!session || !webId) return;
+    const root = await getPodRoot(webId, session.fetch);
+    if (!root) return;
+    
+    setDemoCity("Edinburgh, UK");
+    
+    try {
+      const contacts = await getContacts(root, session.fetch);
+      if (contacts.length > 0) {
+        setDemoMatches(contacts.map(c => ({
+          contact: c.webId,
+          cityName: "Edinburgh, UK",
+          reason: "current"
+        })));
+      } else {
+        setDemoMatches([{
+          contact: "https://alice.solidcommunity.net/profile/card#me",
+          cityName: "Edinburgh, UK",
+          reason: "current"
+        }]);
+      }
+      setShowMatchSheet(true);
+    } catch (e) {
+      console.error("Demo failed", e);
+    }
+  };
 
   const loadCards = async () => {
     if (!session || !webId) return;
@@ -111,7 +146,7 @@ export const Home = () => {
       </header>
 
       <main className="max-w-md mx-auto mt-6">
-        {currentCity && matchStatus === "done" && matches.length > 0 && (
+        {activeCity && (matchStatus === "done" || demoCity) && activeMatches.length > 0 && (
           <div 
             onClick={() => setShowMatchSheet(true)}
             className="mb-8 bg-stone-500/10 border border-stone-500/30 rounded-none p-4 flex items-center justify-between cursor-pointer hover:bg-stone-500/20 transition-colors"
@@ -119,8 +154,8 @@ export const Home = () => {
             <div className="flex items-center space-x-3">
               <span className="text-2xl">📍</span>
               <div>
-                <h4 className="font-semibold text-stone-400">{currentCity} — away from home</h4>
-                <p className="text-sm text-stone-600">You have {matches.length} contacts here. Want to say hi?</p>
+                <h4 className="font-semibold text-stone-400">{activeCity} — away from home</h4>
+                <p className="text-sm text-stone-600">You have {activeMatches.length} contacts here. Want to say hi?</p>
               </div>
             </div>
           </div>
@@ -128,7 +163,7 @@ export const Home = () => {
 
         {showMatchSheet && (
           <MatchSheet 
-            matches={matches} 
+            matches={activeMatches} 
             onClose={() => setShowMatchSheet(false)} 
           />
         )}
@@ -183,6 +218,14 @@ export const Home = () => {
           </div>
         )}
       </main>
+
+      <button 
+        onClick={triggerDemo}
+        className="fixed bottom-6 left-6 w-12 h-12 bg-stone-800 text-white rounded-full flex items-center justify-center shadow-2xl hover:bg-stone-700 hover:scale-105 transition-all group z-50"
+        title="Trigger Edinburgh Demo"
+      >
+        <MapPin size={20} className="group-hover:animate-bounce" />
+      </button>
     </div>
   );
 };
