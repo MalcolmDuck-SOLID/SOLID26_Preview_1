@@ -11,7 +11,8 @@ import {
   getUrlAll,
   getTermAll,
   getPropertyAll,
-  removeThing
+  removeThing,
+  getUrl
 } from "@inrupt/solid-client";
 import { VOCAB } from "../vocab";
 import type { Card } from "../types";
@@ -44,6 +45,8 @@ const KNOWN_LABELS: Record<string, string> = {
   "http://www.w3.org/2006/vcard/ns#locality": "City",
   "http://www.w3.org/2006/vcard/ns#postal-code": "Postal Code",
   "http://www.w3.org/2006/vcard/ns#street-address": "Street Address",
+  "http://www.w3.org/2006/vcard/ns#hasEmail": "Email",
+  "http://www.w3.org/2006/vcard/ns#hasTelephone": "Phone",
 };
 
 /** Derive a human-readable label from a predicate URI */
@@ -77,6 +80,20 @@ export async function getProfileFields(webId: string, fetchFn: typeof fetch) {
 
       const terms = getTermAll(profileThing, pred);
       if (terms.length > 0) {
+        let valStr = terms[0].value;
+        
+        // If the term is a URL to another node (like an email/phone blank node), 
+        // fetch that nested node and look for vcard:value
+        if (terms[0].termType === 'NamedNode' || terms[0].termType === 'BlankNode') {
+          const subThing = getThing(dataset, valStr);
+          if (subThing) {
+            const vcardValue = getStringNoLocale(subThing, "http://www.w3.org/2006/vcard/ns#value") || getUrl(subThing, "http://www.w3.org/2006/vcard/ns#value");
+            if (vcardValue) {
+              valStr = vcardValue;
+            }
+          }
+        }
+
         const label = labelFromUri(pred);
         // Skip duplicate labels (e.g., foaf:nick and vcard:nickname both becoming "Nickname")
         // and also skip 'Type' if it slipped through
@@ -85,7 +102,7 @@ export async function getProfileFields(webId: string, fetchFn: typeof fetch) {
           availableFields.push({
             uri: pred,
             label,
-            value: terms[0].value,
+            value: valStr,
           });
         }
       }
