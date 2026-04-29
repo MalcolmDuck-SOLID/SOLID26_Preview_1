@@ -26,61 +26,72 @@ export async function bootstrapPod(webId: string, fetchFn: typeof fetch) {
   const cardsContainer = `${cmContainer}cards/`;
   const sharesContainer = `${cmContainer}shares/`;
   const locationDoc = `${cmContainer}location.ttl`;
-  const contactsDoc = `${cmContainer}contacts.ttl`;
+  const contactsContainer = `${root}contacts/`;
+  const contactsIndexDoc = `${contactsContainer}index.ttl`;
 
-  // 2. Create `/callme/`, `/callme/cards/`, and `/callme/shares/` if absent. 
-  try {
-    await getSolidDataset(cmContainer, { fetch: fetchFn });
-  } catch (err: any) {
-    if (err.statusCode === 404) {
-      await createContainerAt(cmContainer, { fetch: fetchFn });
-    }
-  }
-
-  try {
-    await getSolidDataset(cardsContainer, { fetch: fetchFn });
-  } catch (err: any) {
-    if (err.statusCode === 404) {
-      await createContainerAt(cardsContainer, { fetch: fetchFn });
-    }
-  }
-
-  try {
-    await getSolidDataset(sharesContainer, { fetch: fetchFn });
-  } catch (err: any) {
-    if (err.statusCode === 404) {
-      await createContainerAt(sharesContainer, { fetch: fetchFn });
+  // 2. Create containers if absent
+  for (const container of [cmContainer, cardsContainer, sharesContainer, contactsContainer]) {
+    try {
+      await getSolidDataset(container, { fetch: fetchFn });
+    } catch (err: any) {
+      if (err.statusCode === 404) {
+        await createContainerAt(container, { fetch: fetchFn });
+      }
     }
   }
 
   // 3. Create basic structures if missing
   await ensureResource(locationDoc, fetchFn, () => createSolidDataset());
-  await ensureResource(contactsDoc, fetchFn, () => createSolidDataset());
+  
+  // 4. Create /contacts/index.ttl with foaf:Group if absent
+  try {
+    await getSolidDataset(contactsIndexDoc, { fetch: fetchFn });
+  } catch (err: any) {
+    if (err.statusCode === 404) {
+      const groupThing = buildThing(createThing({ name: "this" }))
+        .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", VOCAB.FOAF.Group)
+        .addStringNoLocale(VOCAB.FOAF.name, "My Contacts")
+        .addStringNoLocale("http://purl.org/dc/terms/created", new Date().toISOString())
+        .build();
+      const ds = setThing(createSolidDataset(), groupThing);
+      await saveSolidDatasetAt(contactsIndexDoc, ds, { fetch: fetchFn });
+    }
+  }
 
-  // 4. Update privateTypeIndex.ttl to register cm:Card and cm:Share
-  // First, find the private type index from the user's WebID profile.
+  // 5. Update privateTypeIndex.ttl to register cm:Card and foaf:Person
   const profileDs = await getSolidDataset(webId, { fetch: fetchFn });
   const profile = getThing(profileDs, webId);
-  if (!profile) return; // shouldn't happen
+  if (!profile) return;
   
-  // NOTE: a robust implementation dynamically resolves the privateTypeIndex url
-  // but for hackathons, creating it at root/settings/privateTypeIndex.ttl is common.
-  // For safety, we will just rely on standard path.
   const typeIndexUrl = `${root}settings/privateTypeIndex.ttl`;
   
   try {
     let indexDs = await getSolidDataset(typeIndexUrl, { fetch: fetchFn }).catch(() => createSolidDataset());
+    let changed = false;
     
-    // Check if cm:Card is registered
-    const existingCardReg = getThing(indexDs, `${typeIndexUrl}#callme-cards`);
-    if (!existingCardReg) {
+    // Register cm:Card
+    if (!getThing(indexDs, `${typeIndexUrl}#callme-cards`)) {
       const cardReg = buildThing(createThing({ name: "callme-cards" }))
         .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", VOCAB.SOLID.TypeRegistration)
         .addUrl(VOCAB.SOLID.forClass, VOCAB.CM.Card)
         .addUrl(VOCAB.SOLID.instanceContainer, cardsContainer)
         .build();
-      
       indexDs = setThing(indexDs, cardReg);
+      changed = true;
+    }
+
+    // Register foaf:Person → /contacts/
+    if (!getThing(indexDs, `${typeIndexUrl}#contacts`)) {
+      const contactReg = buildThing(createThing({ name: "contacts" }))
+        .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", VOCAB.SOLID.TypeRegistration)
+        .addUrl(VOCAB.SOLID.forClass, VOCAB.FOAF.Person)
+        .addUrl(VOCAB.SOLID.instanceContainer, contactsContainer)
+        .build();
+      indexDs = setThing(indexDs, contactReg);
+      changed = true;
+    }
+
+    if (changed) {
       await saveSolidDatasetAt(typeIndexUrl, indexDs, { fetch: fetchFn });
     }
   } catch (e) {

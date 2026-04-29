@@ -23,6 +23,10 @@ export const VOCAB = {
     homepage: FOAF.homepage,
     Person: FOAF.Person,
     nick: FOAF.nick,
+    Group: "http://xmlns.com/foaf/0.1/Group",
+    member: "http://xmlns.com/foaf/0.1/member",
+    mbox: "http://xmlns.com/foaf/0.1/mbox",
+    img: "http://xmlns.com/foaf/0.1/img",
   },
   VCARD: {
     note: VCARD.note,

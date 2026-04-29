@@ -55,7 +55,7 @@ export const ContactsScreen: React.FC<ContactsProps> = ({ onBack }) => {
     try {
       const root = await getPodRoot(webId, session.fetch);
       if (root) {
-        await addContact(root, newWebId, session.fetch);
+        await addContact(root, newWebId, webId, session.fetch);
         setNewWebId('');
         await loadContacts(); // Refresh list to get resolved name
       }

@@ -12,8 +12,11 @@ export interface Card {
 }
 
 export interface Contact {
-  webId: string;
-  name?: string;
-  homeCity?: string;
-  currentCity?: string;
+  url: string;          // URL of the person document in /contacts/
+  webId: string;        // Their WebID
+  name?: string;        // foaf:name
+  nick?: string;        // foaf:nick
+  mbox?: string;        // foaf:mbox
+  homepage?: string;    // foaf:homepage
+  img?: string;         // foaf:img
 }
