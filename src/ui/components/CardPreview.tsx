@@ -162,17 +162,17 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDe
       </div>
       
       <div className="space-y-3 relative z-10">
-        {textFields.map(f => (
+        {textFields.filter(f => data[f]).map(f => (
           <div key={f} className="flex flex-col">
             <span className={`text-xs ${bgDataUrl ? 'text-stone-300/80' : 'text-stone-500'} font-medium uppercase tracking-wider mb-0.5`}>
               {fieldLabel(f)}
             </span>
             <span className={`${bgDataUrl ? 'text-white' : 'text-stone-700'}`}>
-              {data[f] || <span className={`${bgDataUrl ? 'text-stone-400 opacity-80' : 'text-stone-400'} italic`}>Not set</span>}
+              {data[f]}
             </span>
           </div>
         ))}
-        {textFields.length === 0 && !avatarUrl && (
+        {textFields.filter(f => data[f]).length === 0 && !avatarUrl && (
           <p className={`${bgDataUrl ? 'text-stone-300' : 'text-stone-500'} text-sm`}>No fields configured.</p>
         )}
       </div>
