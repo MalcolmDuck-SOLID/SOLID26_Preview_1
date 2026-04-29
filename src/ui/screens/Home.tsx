@@ -118,7 +118,14 @@ export const Home = () => {
           <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-stone-200">
             <Feather size={20} className="text-stone-500" />
           </div>
-          <h1 className="text-2xl font-serif">Bunbary</h1>
+          <div className="flex flex-col justify-center">
+            <h1 className="text-2xl font-serif leading-none mt-1">Bunbary</h1>
+            {activeCity && (
+              <span className="text-[10px] text-stone-400 uppercase tracking-wider mt-1 flex items-center">
+                <MapPin size={10} className="mr-1" /> {activeCity}
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex items-center space-x-2">
           <button 
