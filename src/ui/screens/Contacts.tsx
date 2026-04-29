@@ -26,6 +26,7 @@ export const ContactsScreen: React.FC<ContactsProps> = ({ onBack }) => {
   const [shareTarget, setShareTarget] = useState<Contact | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
+  const [selectedFold, setSelectedFold] = useState<'none' | 'tl' | 'tr'>('none');
   const [sharing, setSharing] = useState(false);
   const [shareSuccess, setShareSuccess] = useState(false);
 
@@ -138,7 +139,7 @@ export const ContactsScreen: React.FC<ContactsProps> = ({ onBack }) => {
     setSharing(true);
     setShareError(null);
     try {
-      await shareCard(selectedCard, shareTarget.webId, webId!, session.fetch);
+      await shareCard(selectedCard, shareTarget.webId, webId!, session.fetch, selectedFold);
       setShareSuccess(true);
       setTimeout(() => {
         setShareTarget(null);
@@ -288,6 +289,37 @@ export const ContactsScreen: React.FC<ContactsProps> = ({ onBack }) => {
                         )}
                       </button>
                     ))}
+                  </div>
+                )}
+                
+                {cards.length > 0 && (
+                  <div className="mb-8">
+                    <label className="block text-sm font-medium text-stone-500 mb-2">
+                      Fold a Corner (Optional)
+                    </label>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => setSelectedFold('none')}
+                        className={`flex-1 py-2 text-xs font-medium rounded-none border transition-colors ${selectedFold === 'none' ? 'bg-stone-600 text-white border-stone-600' : 'bg-stone-50 text-stone-600 border-stone-200 hover:border-stone-400'}`}
+                      >
+                        None
+                      </button>
+                      <button
+                        onClick={() => setSelectedFold('tl')}
+                        className={`flex-1 py-2 text-xs font-medium rounded-none border transition-colors ${selectedFold === 'tl' ? 'bg-stone-600 text-white border-stone-600' : 'bg-stone-50 text-stone-600 border-stone-200 hover:border-stone-400'}`}
+                      >
+                        Upper Left
+                      </button>
+                      <button
+                        onClick={() => setSelectedFold('tr')}
+                        className={`flex-1 py-2 text-xs font-medium rounded-none border transition-colors ${selectedFold === 'tr' ? 'bg-stone-600 text-white border-stone-600' : 'bg-stone-50 text-stone-600 border-stone-200 hover:border-stone-400'}`}
+                      >
+                        Upper Right
+                      </button>
+                    </div>
+                    <div className="mt-2 text-[10px] text-stone-400 uppercase tracking-widest text-center">
+                      Left = Long Visit · Right = Short Visit
+                    </div>
                   </div>
                 )}
 

@@ -13,6 +13,7 @@ export interface Card {
   backgroundData?: string;
   photoData?: string;
   profileData?: Record<string, string>;
+  fold?: 'tl' | 'tr' | 'none';
 }
 
 export interface Contact {

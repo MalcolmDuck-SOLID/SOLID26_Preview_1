@@ -135,6 +135,27 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDe
       {bgDataUrl && <div className="absolute inset-0 bg-black/60 z-0"></div>}
       <div className="absolute top-0 right-0 w-32 h-32 bg-stone-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none fade-in z-0"></div>
       
+      {card.fold === 'tl' && (
+        <div className="absolute top-0 left-0 z-20 w-[40px] h-[40px]">
+          <svg className="absolute inset-0" viewBox="0 0 40 40">
+            <polygon points="0,0 40,0 0,40" fill="#fafaf9" />
+          </svg>
+          <svg className="absolute inset-0 drop-shadow-md" viewBox="0 0 40 40">
+            <polygon points="0,40 40,0 40,40" fill="#ffffff" />
+          </svg>
+        </div>
+      )}
+      {card.fold === 'tr' && (
+        <div className="absolute top-0 right-0 z-20 w-[40px] h-[40px]">
+          <svg className="absolute inset-0" viewBox="0 0 40 40">
+            <polygon points="0,0 40,0 40,40" fill="#fafaf9" />
+          </svg>
+          <svg className="absolute inset-0 drop-shadow-md" viewBox="0 0 40 40">
+            <polygon points="0,0 40,0 0,40" fill="#ffffff" />
+          </svg>
+        </div>
+      )}
+
       <div className="flex justify-between items-start mb-4 relative z-10">
         <div className="flex items-center space-x-3">
           {avatarUrl && (

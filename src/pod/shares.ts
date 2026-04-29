@@ -24,7 +24,7 @@ export interface ReceivedShare {
   sharedAt: string | null;
 }
 
-export async function shareCard(cardUrl: string, targetWebId: string, senderWebId: string, fetchFn: typeof fetch): Promise<void> {
+export async function shareCard(cardUrl: string, targetWebId: string, senderWebId: string, fetchFn: typeof fetch, fold?: 'tl' | 'tr' | 'none'): Promise<void> {
   console.log("[shareCard] Starting share:", { cardUrl, targetWebId, senderWebId });
 
   // Helper: fetch an image URL and return as base64 data URI
@@ -160,6 +160,9 @@ export async function shareCard(cardUrl: string, targetWebId: string, senderWebI
   }
   if (cardColor) {
     sharedCard = sharedCard.addStringNoLocale(VOCAB.CM.cardColor, cardColor);
+  }
+  if (fold && fold !== 'none') {
+    sharedCard = sharedCard.addStringNoLocale(VOCAB.CM.cardFold, fold);
   }
 
   let ds = setThing(createSolidDataset(), sharedCard.build());
@@ -337,6 +340,7 @@ export async function fetchRemoteCard(cardUrl: string, fetchFn: typeof fetch): P
         fields: getUrlAll(cardThing, VOCAB.CM.hasField),
         background: getUrlAll(cardThing, VOCAB.CM.hasBackground)[0],
         color: getStringNoLocale(cardThing, VOCAB.CM.cardColor) || undefined,
+        fold: (getStringNoLocale(cardThing, VOCAB.CM.cardFold) as 'tl' | 'tr' | 'none') || undefined,
         backgroundData,
         message: getStringNoLocale(cardThing, VOCAB.CM.message) || undefined,
         photoData,

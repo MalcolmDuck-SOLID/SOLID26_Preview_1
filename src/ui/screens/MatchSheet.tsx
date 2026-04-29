@@ -17,6 +17,7 @@ export const MatchSheet: React.FC<MatchSheetProps> = ({ matches, onClose }) => {
   const [cards, setCards] = useState<Card[]>([]);
   const [selectedMatch, setSelectedMatch] = useState<MatchResult | null>(null);
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
+  const [selectedFold, setSelectedFold] = useState<'none' | 'tl' | 'tr'>('none');
   const [sharing, setSharing] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -35,7 +36,7 @@ export const MatchSheet: React.FC<MatchSheetProps> = ({ matches, onClose }) => {
     if (!selectedMatch || !selectedCard || !session) return;
     setSharing(true);
     try {
-      await shareCard(selectedCard, selectedMatch.contact, webId!, session.fetch);
+      await shareCard(selectedCard, selectedMatch.contact, webId!, session.fetch, selectedFold);
       setSuccess(true);
       setTimeout(() => onClose(), 2000);
     } catch (e) {
@@ -97,6 +98,33 @@ export const MatchSheet: React.FC<MatchSheetProps> = ({ matches, onClose }) => {
                     {c.label}
                   </button>
                 ))}
+              </div>
+            </div>
+
+            <div className="mb-8">
+              <label className="block text-sm font-medium text-stone-500 mb-2">3. Fold a Corner (Optional)</label>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setSelectedFold('none')}
+                  className={`flex-1 py-2 text-xs font-medium rounded-none border transition-colors ${selectedFold === 'none' ? 'bg-stone-600 text-white border-stone-600' : 'bg-stone-50 text-stone-600 border-stone-200 hover:border-stone-400'}`}
+                >
+                  None
+                </button>
+                <button
+                  onClick={() => setSelectedFold('tl')}
+                  className={`flex-1 py-2 text-xs font-medium rounded-none border transition-colors ${selectedFold === 'tl' ? 'bg-stone-600 text-white border-stone-600' : 'bg-stone-50 text-stone-600 border-stone-200 hover:border-stone-400'}`}
+                >
+                  Upper Left
+                </button>
+                <button
+                  onClick={() => setSelectedFold('tr')}
+                  className={`flex-1 py-2 text-xs font-medium rounded-none border transition-colors ${selectedFold === 'tr' ? 'bg-stone-600 text-white border-stone-600' : 'bg-stone-50 text-stone-600 border-stone-200 hover:border-stone-400'}`}
+                >
+                  Upper Right
+                </button>
+              </div>
+              <div className="mt-2 text-[10px] text-stone-400 uppercase tracking-widest text-center">
+                Left = Long Visit · Right = Short Visit
               </div>
             </div>
 

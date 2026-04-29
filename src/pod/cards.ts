@@ -119,7 +119,8 @@ export async function getCards(podRoot: string, fetchFn: typeof fetch): Promise<
              const fields = getUrlAll(cardThing, VOCAB.CM.hasField);
              const background = getUrlAll(cardThing, VOCAB.CM.hasBackground)[0];
              const color = getStringNoLocale(cardThing, VOCAB.CM.cardColor) || undefined;
-             cards.push({ url, label, fields, background, message, color });
+             const fold = (getStringNoLocale(cardThing, VOCAB.CM.cardFold) as 'tl' | 'tr' | 'none') || undefined;
+             cards.push({ url, label, fields, background, message, color, fold });
           }
         } catch(e) {
            console.warn("Could not read card at", url);

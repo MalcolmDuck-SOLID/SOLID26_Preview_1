@@ -21,6 +21,7 @@ export const VOCAB = {
     fieldLabel: `${CM}fieldLabel`,
     fieldValue: `${CM}fieldValue`,
     cardColor: `${CM}cardColor`,
+    cardFold: `${CM}cardFold`,
   },
   FOAF: {
     name: FOAF.name,
