@@ -15,6 +15,11 @@ export const VOCAB = {
     message: `${CM}message`,
     currentCity: `${CM}currentCity`,
     homeCity: `${CM}homeCity`,
+    backgroundData: `${CM}backgroundData`,
+    photoData: `${CM}photoData`,
+    profileData: `${CM}profileData`,
+    fieldLabel: `${CM}fieldLabel`,
+    fieldValue: `${CM}fieldValue`,
   },
   FOAF: {
     name: FOAF.name,

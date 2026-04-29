@@ -9,6 +9,9 @@ export interface Card {
   fields: string[]; // List of predicate URIs
   background?: string;
   message?: string;
+  backgroundData?: string;
+  photoData?: string;
+  profileData?: Record<string, string>;
 }
 
 export interface Contact {

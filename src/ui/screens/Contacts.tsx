@@ -96,8 +96,8 @@ export const ContactsScreen: React.FC<ContactsProps> = ({ onBack }) => {
         setShareSuccess(false);
       }, 2000);
     } catch (e: any) {
-      console.error(e);
-      setShareError(e.message || "Failed to share card.");
+      console.error("[Contacts] Failed to share card:", e);
+      setShareError(`Error: ${e.message || e.toString()}`);
     } finally {
       setSharing(false);
     }
