@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../auth/AuthContext';
 import { getInboxShares, getSentShares, fetchRemoteCard, deleteShare } from '../../pod/shares';
 import { getPodRoot } from '../../pod/bootstrap';
+import { getSolidDataset, getThing, getStringNoLocale } from '@inrupt/solid-client';
 import type { ReceivedShare } from '../../pod/shares';
 import type { Card } from '../../types';
 import { CardPreview } from '../components/CardPreview';
@@ -18,6 +19,30 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
   const [received, setReceived] = useState<{ id: string, share: ReceivedShare, card: Card | null }[]>([]);
   const [sent, setSent] = useState<{ id: string, share: ReceivedShare, card: Card | null }[]>([]);
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+  const [enrichedNames, setEnrichedNames] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!session) return;
+    const allWebIds = new Set<string>();
+    received.forEach(r => allWebIds.add(r.share.senderWebId));
+    sent.forEach(s => allWebIds.add(s.share.senderWebId));
+
+    allWebIds.forEach(async (id) => {
+      try {
+        const ds = await getSolidDataset(id, { fetch: session.fetch });
+        const profile = getThing(ds, id);
+        if (profile) {
+          const name = getStringNoLocale(profile, "http://www.w3.org/2006/vcard/ns#fn") || 
+                       getStringNoLocale(profile, "http://xmlns.com/foaf/0.1/name");
+          if (name) {
+            setEnrichedNames(prev => ({ ...prev, [id]: name }));
+          }
+        }
+      } catch (e) {
+        // Ignore enrichment errors
+      }
+    });
+  }, [received, sent, session]);
 
   useEffect(() => {
     async function load() {
@@ -143,7 +168,9 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
                  <div className="mb-2 text-sm text-stone-500 flex items-center justify-between">
                    <span className="truncate flex-1 max-w-[200px]" title={share.senderWebId}>
                      {tab === 'received' ? 'From ' : 'To '}
-                     {share.senderWebId.split('/').slice(-2, -1)[0] || share.senderWebId}
+                     <span className="font-medium text-stone-700">
+                       {enrichedNames[share.senderWebId] || share.senderWebId.split('/').slice(-2, -1)[0] || share.senderWebId}
+                     </span>
                    </span>
                  </div>
                  
