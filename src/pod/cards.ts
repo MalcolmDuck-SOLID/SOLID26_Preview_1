@@ -82,14 +82,33 @@ export async function getProfileFields(webId: string, fetchFn: typeof fetch) {
       if (terms.length > 0) {
         let valStr = terms[0].value;
         
-        // If the term is a URL to another node (like an email/phone blank node), 
-        // fetch that nested node and look for vcard:value
+        // If the term is a URL to another node (like an email/phone/address blank node), 
+        // fetch that nested node and look for vcard:value or address components
         if (terms[0].termType === 'NamedNode' || terms[0].termType === 'BlankNode') {
           const subThing = getThing(dataset, valStr);
           if (subThing) {
-            const vcardValue = getStringNoLocale(subThing, "http://www.w3.org/2006/vcard/ns#value") || getUrl(subThing, "http://www.w3.org/2006/vcard/ns#value");
-            if (vcardValue) {
-              valStr = vcardValue;
+            if (pred === "http://www.w3.org/2006/vcard/ns#hasAddress") {
+              const parts = [];
+              const street = getStringNoLocale(subThing, "http://www.w3.org/2006/vcard/ns#street-address");
+              const city = getStringNoLocale(subThing, "http://www.w3.org/2006/vcard/ns#locality");
+              const region = getStringNoLocale(subThing, "http://www.w3.org/2006/vcard/ns#region");
+              const zip = getStringNoLocale(subThing, "http://www.w3.org/2006/vcard/ns#postal-code");
+              const country = getStringNoLocale(subThing, "http://www.w3.org/2006/vcard/ns#country-name");
+              
+              if (street) parts.push(street);
+              if (city) parts.push(city);
+              if (region) parts.push(region);
+              if (zip) parts.push(zip);
+              if (country) parts.push(country);
+              
+              if (parts.length > 0) {
+                valStr = parts.join(", ");
+              }
+            } else {
+              const vcardValue = getStringNoLocale(subThing, "http://www.w3.org/2006/vcard/ns#value") || getUrl(subThing, "http://www.w3.org/2006/vcard/ns#value");
+              if (vcardValue) {
+                valStr = vcardValue;
+              }
             }
           }
         }
