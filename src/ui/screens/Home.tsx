@@ -33,6 +33,15 @@ export const Home = () => {
 
   const triggerDemo = async () => {
     if (!session || !webId) return;
+    
+    if (demoCity) {
+      // Toggle back to normal
+      setDemoCity(null);
+      setDemoMatches(null);
+      setShowMatchSheet(false);
+      return;
+    }
+
     const root = await getPodRoot(webId, session.fetch);
     if (!root) return;
     
