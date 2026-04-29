@@ -119,6 +119,12 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDe
   // Fields to render as text rows (exclude the photo — it gets its own avatar)
   const textFields = card.fields.filter(f => f !== PHOTO_PREDICATE);
 
+  const formatValue = (val: string) => {
+    if (val.startsWith('mailto:')) return val.substring(7);
+    if (val.startsWith('tel:')) return val.substring(4);
+    return val;
+  };
+
   if (loading) {
     return <div className="animate-pulse bg-white rounded-none h-32 w-full border border-stone-200"></div>;
   }
@@ -195,7 +201,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDe
               {fieldLabel(f)}
             </span>
             <span className={`${bgDataUrl ? 'text-white' : 'text-stone-700'}`}>
-              {data[f]}
+              {formatValue(data[f])}
             </span>
           </div>
         ))}

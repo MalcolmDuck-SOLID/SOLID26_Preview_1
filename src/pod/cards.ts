@@ -23,6 +23,7 @@ const SKIP_PREFIXES = [
   "http://www.w3.org/ns/ldp#",                      // ldp:*
   "http://xmlns.com/foaf/0.1/isPrimaryTopicOf",     // foaf:isPrimaryTopicOf
   "http://xmlns.com/foaf/0.1/maker",                // foaf:maker
+  "http://xmlns.com/foaf/0.1/knows",                // foaf:knows
 ];
 
 // Known human-readable overrides for common predicates
