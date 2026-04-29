@@ -21,6 +21,8 @@ const SKIP_PREFIXES = [
   "http://www.w3.org/ns/solid/terms#",              // solid:*
   "http://www.w3.org/ns/pim/space#",                // space:*
   "http://www.w3.org/ns/ldp#",                      // ldp:*
+  "http://xmlns.com/foaf/0.1/isPrimaryTopicOf",     // foaf:isPrimaryTopicOf
+  "http://xmlns.com/foaf/0.1/maker",                // foaf:maker
 ];
 
 // Known human-readable overrides for common predicates
@@ -65,6 +67,7 @@ export async function getProfileFields(webId: string, fetchFn: typeof fetch) {
 
     const predicates = getPropertyAll(profileThing);
     const availableFields: { uri: string; label: string; value: string }[] = [];
+    const seenLabels = new Set<string>();
 
     for (const pred of predicates) {
       // Skip infrastructure
@@ -72,11 +75,17 @@ export async function getProfileFields(webId: string, fetchFn: typeof fetch) {
 
       const terms = getTermAll(profileThing, pred);
       if (terms.length > 0) {
-        availableFields.push({
-          uri: pred,
-          label: labelFromUri(pred),
-          value: terms[0].value,
-        });
+        const label = labelFromUri(pred);
+        // Skip duplicate labels (e.g., foaf:nick and vcard:nickname both becoming "Nickname")
+        // and also skip 'Type' if it slipped through
+        if (!seenLabels.has(label) && label.toLowerCase() !== 'type') {
+          seenLabels.add(label);
+          availableFields.push({
+            uri: pred,
+            label,
+            value: terms[0].value,
+          });
+        }
       }
     }
 

@@ -178,7 +178,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
               <div 
                 className={`w-20 h-20 shrink-0 rounded-xl cursor-pointer border-2 shadow-sm flex items-center justify-center transition-all ${selectedBackground === null ? 'border-blue-500 bg-stone-100' : 'border-stone-200 bg-white hover:border-stone-400'}`}
-                onClick={() => setSelectedBackground(null)}
+                onClick={() => { setSelectedBackground(null); if (!cardColor) setCardColor('#F0EAD6'); }}
               >
                  <span className="text-xs text-stone-500">None</span>
               </div>
@@ -187,7 +187,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                    key={bg} 
                    src={bgBlobUrls[bg] || ''} 
                    alt="Background option"
-                   onClick={() => setSelectedBackground(bg)}
+                   onClick={() => { setSelectedBackground(bg); setCardColor(''); }}
                    className={`w-20 h-20 shrink-0 rounded-xl cursor-pointer object-cover shadow-sm border-2 transition-all ${selectedBackground === bg ? 'border-blue-500' : 'border-stone-200 hover:border-stone-400'}`} 
                  />
               ))}
@@ -207,7 +207,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           ].map(color => (
             <div
               key={color.hex}
-              onClick={() => setCardColor(color.hex)}
+              onClick={() => { setCardColor(color.hex); setSelectedBackground(null); }}
               className={`w-10 h-10 rounded-full cursor-pointer shadow-sm border-2 transition-transform ${cardColor === color.hex ? 'border-stone-400 scale-110' : 'border-stone-200 hover:scale-105'}`}
               style={{ backgroundColor: color.hex }}
               title={color.name}
