@@ -49,7 +49,7 @@ export const MatchSheet: React.FC<MatchSheetProps> = ({ matches, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex flex-col justify-end">
       <div className="absolute inset-0 bg-stone-50/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative bg-white border-t border-stone-200 rounded-t-3xl p-6 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom pb-10">
+      <div className="relative bg-white border-t border-stone-200 rounded-none p-6 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] animate-in slide-in-from-bottom pb-10">
         <button onClick={onClose} className="absolute top-4 right-4 text-stone-9000 hover:text-stone-700">
           <X size={24} />
         </button>
@@ -57,7 +57,7 @@ export const MatchSheet: React.FC<MatchSheetProps> = ({ matches, onClose }) => {
         <h3 className="text-2xl font-bold text-stone-900 mb-6">Found in the Wild</h3>
         
         {success ? (
-          <div className="bg-green-500/10 border border-green-500/30 text-green-400 p-6 rounded-2xl text-center">
+          <div className="bg-green-500/10 border border-green-500/30 text-green-400 p-6 rounded-none text-center">
             <h4 className="font-bold mb-2">Card Shared Successfully!</h4>
             <p className="text-sm">They've received a notification in their Inbox.</p>
           </div>
@@ -70,7 +70,7 @@ export const MatchSheet: React.FC<MatchSheetProps> = ({ matches, onClose }) => {
                   <button
                     key={m.contact}
                     onClick={() => setSelectedMatch(m)}
-                    className={`w-full flex flex-col text-left p-3 rounded-xl border transition-colors ${
+                    className={`w-full flex flex-col text-left p-3 rounded-none border transition-colors ${
                       selectedMatch?.contact === m.contact ? 'bg-stone-500/10 border-stone-500' : 'bg-stone-100 border-stone-300 hover:border-zinc-500'
                     }`}
                   >
@@ -103,7 +103,7 @@ export const MatchSheet: React.FC<MatchSheetProps> = ({ matches, onClose }) => {
             <button 
               onClick={handleShare}
               disabled={!selectedMatch || !selectedCard || sharing}
-              className="w-full bg-stone-600 hover:bg-stone-500 disabled:opacity-50 text-white font-medium py-4 px-4 rounded-xl flex items-center justify-center transition-colors"
+              className="w-full bg-stone-600 hover:bg-stone-500 disabled:opacity-50 text-white font-medium py-4 px-4 rounded-none flex items-center justify-center transition-colors"
             >
               {sharing ? <Loader2 className="animate-spin mr-2" size={20} /> : <Send size={20} className="mr-2" />}
               Share instantly

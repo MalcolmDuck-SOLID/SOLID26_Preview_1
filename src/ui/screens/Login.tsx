@@ -15,9 +15,9 @@ export const LoginScreen = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-stone-50 p-6">
-      <div className="w-full max-w-md bg-white border border-stone-200 rounded-3xl p-8 shadow-2xl">
+      <div className="w-full max-w-md bg-white border border-stone-200 rounded-none p-8 shadow-2xl">
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-stone-500/10 text-stone-500 rounded-2xl flex items-center justify-center">
+          <div className="w-16 h-16 bg-stone-500/10 text-stone-500 rounded-none flex items-center justify-center">
             <LogIn size={32} />
           </div>
         </div>
@@ -28,21 +28,21 @@ export const LoginScreen = () => {
         <div className="space-y-3 mb-6">
           <button 
             onClick={() => handleLogin('https://login.inrupt.com')}
-            className="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 font-medium py-3 px-4 rounded-xl transition-colors duration-200"
+            className="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 font-medium py-3 px-4 rounded-none transition-colors duration-200"
           >
             Inrupt PodSpaces
           </button>
           
           <button 
             onClick={() => handleLogin('https://solidcommunity.net')}
-            className="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 font-medium py-3 px-4 rounded-xl transition-colors duration-200"
+            className="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 font-medium py-3 px-4 rounded-none transition-colors duration-200"
           >
             SolidCommunity.net
           </button>
           
           <button 
             onClick={() => handleLogin('https://solidweb.org')}
-            className="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 font-medium py-3 px-4 rounded-xl transition-colors duration-200"
+            className="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 font-medium py-3 px-4 rounded-none transition-colors duration-200"
           >
             SolidWeb.org
           </button>
@@ -63,14 +63,14 @@ export const LoginScreen = () => {
                 type="url"
                 value={customIdp}
                 onChange={(e) => setCustomIdp(e.target.value)}
-                className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 pl-10 pr-4 text-stone-800 focus:outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500"
+                className="w-full bg-stone-50 border border-stone-200 rounded-none py-3 pl-10 pr-4 text-stone-800 focus:outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500"
                 placeholder="https://yourpod.example"
               />
             </div>
             <button 
               onClick={() => handleLogin(customIdp)}
               disabled={!customIdp}
-              className="bg-stone-600 hover:bg-stone-500 disabled:opacity-50 text-white font-medium py-3 px-4 rounded-xl transition-colors duration-200"
+              className="bg-stone-600 hover:bg-stone-500 disabled:opacity-50 text-white font-medium py-3 px-4 rounded-none transition-colors duration-200"
             >
               Go
             </button>

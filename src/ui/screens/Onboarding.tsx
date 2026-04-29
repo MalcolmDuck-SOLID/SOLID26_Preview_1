@@ -106,7 +106,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   }
 
   return (
-    <div className="bg-white border border-stone-200 rounded-3xl p-6 shadow-2xl">
+    <div className="bg-white border border-stone-200 rounded-none p-6 shadow-2xl">
       <h2 className="text-2xl font-bold text-stone-900 mb-2">Create a Card</h2>
       <p className="text-stone-500 mb-6 text-sm">
         A card is a contextual projection of your profile. Pick which fields this card will expose.
@@ -118,7 +118,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           type="text"
           value={cardName}
           onChange={(e) => setCardName(e.target.value)}
-          className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 px-4 text-stone-800 focus:outline-none focus:border-stone-500"
+          className="w-full bg-stone-50 border border-stone-200 rounded-none py-3 px-4 text-stone-800 focus:outline-none focus:border-stone-500"
           placeholder="e.g. Personal, Professional, Dating"
         />
       </div>
@@ -128,7 +128,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         <textarea 
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 px-4 text-stone-800 focus:outline-none focus:border-stone-500"
+          className="w-full bg-stone-50 border border-stone-200 rounded-none py-3 px-4 text-stone-800 focus:outline-none focus:border-stone-500"
           placeholder="e.g. Hope to catch up soon!"
           rows={2}
         />
@@ -137,7 +137,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       <div className="mb-8">
         <label className="block text-sm font-medium text-stone-500 mb-2">Include Profile Fields</label>
         {fields.length === 0 ? (
-          <div className="text-sm text-yellow-500/80 bg-yellow-500/10 p-4 rounded-xl border border-yellow-500/20">
+          <div className="text-sm text-yellow-500/80 bg-yellow-500/10 p-4 rounded-none border border-yellow-500/20">
             We couldn't find many fields on your WebID profile. You can still create an empty card, or add data to your pod first.
           </div>
         ) : (
@@ -148,7 +148,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                 <div 
                   key={f.uri} 
                   onClick={() => toggleField(f.uri)}
-                  className={`flex items-center justify-between p-4 rounded-xl cursor-pointer border transition-colors ${
+                  className={`flex items-center justify-between p-4 rounded-none cursor-pointer border transition-colors ${
                     isSelected ? 'bg-stone-500/10 border-stone-500/30' : 'bg-stone-100/50 border-stone-200 hover:border-stone-300'
                   }`}
                 >
@@ -171,13 +171,13 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       <div className="mb-8">
         <label className="block text-sm font-medium text-stone-500 mb-2">Card Background</label>
         {backgrounds.length === 0 ? (
-           <div className="text-sm text-stone-500 italic bg-stone-50 p-3 rounded-lg border border-stone-200">
+           <div className="text-sm text-stone-500 italic bg-stone-50 p-3 rounded-none border border-stone-200">
              To pick images, place them inside the `/images/` folder on your pod.
            </div>
         ) : (
            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
               <div 
-                className={`w-20 h-20 shrink-0 rounded-xl cursor-pointer border-2 shadow-sm flex items-center justify-center transition-all ${selectedBackground === null ? 'border-stone-500 bg-stone-100' : 'border-stone-200 bg-white hover:border-stone-400'}`}
+                className={`w-20 h-20 shrink-0 rounded-none cursor-pointer border-2 shadow-sm flex items-center justify-center transition-all ${selectedBackground === null ? 'border-stone-500 bg-stone-100' : 'border-stone-200 bg-white hover:border-stone-400'}`}
                 onClick={() => { setSelectedBackground(null); if (!cardColor) setCardColor('#F0EAD6'); }}
               >
                  <span className="text-xs text-stone-500">None</span>
@@ -188,7 +188,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                    src={bgBlobUrls[bg] || ''} 
                    alt="Background option"
                    onClick={() => { setSelectedBackground(bg); setCardColor(''); }}
-                   className={`w-20 h-20 shrink-0 rounded-xl cursor-pointer object-cover shadow-sm border-2 transition-all ${selectedBackground === bg ? 'border-stone-500' : 'border-stone-200 hover:border-stone-400'}`} 
+                   className={`w-20 h-20 shrink-0 rounded-none cursor-pointer object-cover shadow-sm border-2 transition-all ${selectedBackground === bg ? 'border-stone-500' : 'border-stone-200 hover:border-stone-400'}`} 
                  />
               ))}
            </div>
@@ -219,7 +219,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       <button 
         onClick={handleSave}
         disabled={saving || !cardName}
-        className="w-full bg-stone-600 hover:bg-stone-500 disabled:opacity-50 text-white font-medium py-4 px-4 rounded-xl flex items-center justify-center transition-colors"
+        className="w-full bg-stone-600 hover:bg-stone-500 disabled:opacity-50 text-white font-medium py-4 px-4 rounded-none flex items-center justify-center transition-colors"
       >
         {saving ? <Loader2 className="animate-spin" size={20} /> : <><Plus size={20} className="mr-2" /> Save Card</>}
       </button>

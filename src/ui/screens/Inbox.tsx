@@ -97,7 +97,7 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
         </button>
 
         <div className="flex items-center space-x-3 mb-6">
-          <div className="w-12 h-12 bg-stone-500/10 text-stone-500 rounded-2xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-stone-500/10 text-stone-500 rounded-none flex items-center justify-center">
             <InboxIcon size={24} />
           </div>
           <h2 className="text-3xl font-bold tracking-tight">Inbox</h2>
@@ -107,7 +107,7 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
         <div className="flex space-x-2 mb-8">
           <button
             onClick={() => setTab('received')}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+            className={`flex-1 py-2.5 rounded-none text-sm font-medium transition-colors ${
               tab === 'received' ? 'bg-stone-500 text-white' : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-50'
             }`}
           >
@@ -116,7 +116,7 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
           </button>
           <button
             onClick={() => setTab('sent')}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+            className={`flex-1 py-2.5 rounded-none text-sm font-medium transition-colors ${
               tab === 'sent' ? 'bg-stone-500 text-white' : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-50'
             }`}
           >
@@ -128,7 +128,7 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
         {loading ? (
           <div className="flex justify-center p-8 text-stone-500"><Loader2 className="animate-spin" size={32} /></div>
         ) : currentShares.length === 0 ? (
-          <div className="text-center p-8 bg-white border border-dashed border-stone-200 rounded-2xl text-stone-500">
+          <div className="text-center p-8 bg-white border border-dashed border-stone-200 rounded-none text-stone-500">
             <p className="mb-2">{tab === 'received' ? 'No cards received yet.' : 'No cards shared yet.'}</p>
             <p className="text-sm">{tab === 'received' ? 'When a contact shares a card, it appears here.' : 'Share a card from your Contacts to see it here.'}</p>
           </div>
@@ -152,21 +152,21 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
                          href={getShareUrl(share.cardUrl, tab === 'sent' ? webId! : share.senderWebId)}
                          target="_blank"
                          rel="noopener noreferrer"
-                         className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-white border border-stone-200 rounded-xl text-sm font-medium text-stone-700 hover:bg-stone-50 hover:border-stone-300 transition-colors"
+                         className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-white border border-stone-200 rounded-none text-sm font-medium text-stone-700 hover:bg-stone-50 hover:border-stone-300 transition-colors"
                        >
                          <ExternalLink size={14} />
                          <span>View Card</span>
                        </a>
                        <button
                          onClick={() => handleCopy(share.cardUrl, tab === 'sent' ? webId! : share.senderWebId)}
-                         className="flex items-center justify-center space-x-2 py-2.5 px-4 bg-white border border-stone-200 rounded-xl text-sm font-medium text-stone-700 hover:bg-stone-50 hover:border-stone-300 transition-colors"
+                         className="flex items-center justify-center space-x-2 py-2.5 px-4 bg-white border border-stone-200 rounded-none text-sm font-medium text-stone-700 hover:bg-stone-50 hover:border-stone-300 transition-colors"
                        >
                          {copiedUrl === share.cardUrl ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
                          <span>{copiedUrl === share.cardUrl ? 'Copied!' : 'Copy Link'}</span>
                        </button>
                        <button
                          onClick={() => handleDelete(share.url)}
-                         className="flex items-center justify-center py-2.5 px-3 bg-white border border-red-200 rounded-xl text-sm font-medium text-red-500 hover:bg-red-50 hover:border-red-300 transition-colors"
+                         className="flex items-center justify-center py-2.5 px-3 bg-white border border-red-200 rounded-none text-sm font-medium text-red-500 hover:bg-red-50 hover:border-red-300 transition-colors"
                          title="Delete"
                        >
                          <Trash2 size={14} />
@@ -174,11 +174,11 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
                      </div>
                    </>
                  ) : (
-                   <div className="flex items-center justify-between p-4 bg-red-500/10 text-red-400 rounded-xl border border-red-500/20 text-sm">
+                   <div className="flex items-center justify-between p-4 bg-red-500/10 text-red-400 rounded-none border border-red-500/20 text-sm">
                      <span>Access to this card was revoked or the card is unavailable.</span>
                      <button
                        onClick={() => handleDelete(share.url)}
-                       className="ml-3 p-1.5 rounded-lg hover:bg-red-500/20 transition-colors"
+                       className="ml-3 p-1.5 rounded-none hover:bg-red-500/20 transition-colors"
                        title="Delete"
                      >
                        <Trash2 size={14} />

@@ -50,7 +50,7 @@ export const SharedCardView: React.FC<SharedCardViewProps> = ({ cardUrl, fromWeb
         </button>
 
         <div className="flex items-center space-x-3 mb-8">
-          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-stone-200">
+          <div className="w-10 h-10 bg-white rounded-none flex items-center justify-center border border-stone-200">
             <TramFront size={20} className="text-stone-500" />
           </div>
           <div>
@@ -64,7 +64,7 @@ export const SharedCardView: React.FC<SharedCardViewProps> = ({ cardUrl, fromWeb
         </div>
 
         {!isLoggedIn ? (
-          <div className="bg-white border border-stone-200 rounded-2xl p-8 shadow-xl text-center">
+          <div className="bg-white border border-stone-200 rounded-none p-8 shadow-xl text-center">
             <LogIn size={32} className="mx-auto mb-4 text-stone-500" />
             <h3 className="text-lg font-bold mb-2">Log in to view this card</h3>
             <p className="text-sm text-stone-500 mb-6">
@@ -78,7 +78,7 @@ export const SharedCardView: React.FC<SharedCardViewProps> = ({ cardUrl, fromWeb
             <p>Loading shared card...</p>
           </div>
         ) : error ? (
-          <div className="p-6 bg-red-500/10 text-red-500 rounded-2xl border border-red-500/20 text-center">
+          <div className="p-6 bg-red-500/10 text-red-500 rounded-none border border-red-500/20 text-center">
             <p className="font-medium mb-2">Card Unavailable</p>
             <p className="text-sm">{error}</p>
             <p className="text-xs text-stone-400 mt-4 break-all">{cardUrl}</p>
