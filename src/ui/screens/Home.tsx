@@ -80,7 +80,7 @@ export const Home = () => {
     <div className="min-h-screen bg-stone-50 text-stone-900 p-6">
       <header className="max-w-md mx-auto flex items-center justify-between py-6">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-white rounded-none flex items-center justify-center border border-stone-200">
+          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-stone-200">
             <Feather size={20} className="text-stone-500" />
           </div>
           <h1 className="text-2xl font-serif">Bunbary</h1>
@@ -88,21 +88,21 @@ export const Home = () => {
         <div className="flex items-center space-x-2">
           <button 
             onClick={() => setShowInbox(true)}
-            className="w-10 h-10 bg-white hover:bg-stone-100 rounded-none flex items-center justify-center text-stone-500 hover:text-stone-400 transition-colors"
+            className="w-10 h-10 bg-white hover:bg-stone-100 rounded-xl flex items-center justify-center text-stone-500 hover:text-stone-400 transition-colors"
             title="Inbox"
           >
             <InboxIcon size={18} />
           </button>
           <button 
             onClick={() => setShowContacts(true)}
-            className="w-10 h-10 bg-white hover:bg-stone-100 rounded-none flex items-center justify-center text-stone-500 hover:text-stone-400 transition-colors"
+            className="w-10 h-10 bg-white hover:bg-stone-100 rounded-xl flex items-center justify-center text-stone-500 hover:text-stone-400 transition-colors"
             title="Contacts"
           >
             <Users size={18} />
           </button>
           <button 
             onClick={logout}
-            className="w-10 h-10 bg-white hover:bg-stone-100 rounded-none flex items-center justify-center text-stone-500 hover:text-red-400 transition-colors"
+            className="w-10 h-10 bg-white hover:bg-stone-100 rounded-xl flex items-center justify-center text-stone-500 hover:text-red-400 transition-colors"
             title="Sign out"
           >
             <LogOut size={18} />

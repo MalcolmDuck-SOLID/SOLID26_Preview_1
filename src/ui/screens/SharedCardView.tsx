@@ -50,7 +50,7 @@ export const SharedCardView: React.FC<SharedCardViewProps> = ({ cardUrl, fromWeb
         </button>
 
         <div className="flex items-center space-x-3 mb-8">
-          <div className="w-10 h-10 bg-white rounded-none flex items-center justify-center border border-stone-200">
+          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-stone-200">
             <TramFront size={20} className="text-stone-500" />
           </div>
           <div>

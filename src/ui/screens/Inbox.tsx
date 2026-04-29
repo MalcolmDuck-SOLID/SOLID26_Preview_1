@@ -97,7 +97,7 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
         </button>
 
         <div className="flex items-center space-x-3 mb-6">
-          <div className="w-12 h-12 bg-stone-500/10 text-stone-500 rounded-none flex items-center justify-center">
+          <div className="w-12 h-12 bg-stone-500/10 text-stone-500 rounded-2xl flex items-center justify-center">
             <InboxIcon size={24} />
           </div>
           <h2 className="text-3xl font-bold tracking-tight">Inbox</h2>

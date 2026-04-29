@@ -17,7 +17,7 @@ export const LoginScreen = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-stone-50 p-6">
       <div className="w-full max-w-md bg-white border border-stone-200 rounded-none p-8 shadow-2xl">
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-stone-500/10 text-stone-500 rounded-none flex items-center justify-center">
+          <div className="w-16 h-16 bg-stone-500/10 text-stone-500 rounded-2xl flex items-center justify-center">
             <LogIn size={32} />
           </div>
         </div>
