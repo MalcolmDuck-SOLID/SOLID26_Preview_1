@@ -20,6 +20,7 @@ export const VOCAB = {
     profileData: `${CM}profileData`,
     fieldLabel: `${CM}fieldLabel`,
     fieldValue: `${CM}fieldValue`,
+    cardColor: `${CM}cardColor`,
   },
   FOAF: {
     name: FOAF.name,

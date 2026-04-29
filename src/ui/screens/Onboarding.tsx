@@ -19,6 +19,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
   const [backgrounds, setBackgrounds] = useState<string[]>([]);
   const [bgBlobUrls, setBgBlobUrls] = useState<Record<string, string>>({});
   const [selectedBackground, setSelectedBackground] = useState<string | null>(null);
+  const [cardColor, setCardColor] = useState<string>('#F0EAD6'); // Default to Eggshell White
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -81,7 +82,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       // For simplicity, let's do naive root or export the one from bootstrap
       const root = await getPodRoot(webId, session.fetch);
       if (root) {
-        await saveCard(root, cardName, cardName, Array.from(selectedFields), selectedBackground || undefined, message.trim() || undefined, session.fetch);
+        await saveCard(root, cardName, cardName, Array.from(selectedFields), selectedBackground || undefined, message.trim() || undefined, cardColor, session.fetch);
         onComplete();
       }
     } catch (e) {
@@ -192,6 +193,27 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
               ))}
            </div>
         )}
+      </div>
+
+      <div className="mb-8">
+        <label className="block text-sm font-medium text-stone-500 mb-2">Card Colour</label>
+        <div className="flex space-x-3">
+          {[
+            { name: 'Eggshell White', hex: '#F0EAD6' },
+            { name: 'Duck Egg Blue', hex: '#E0EFEF' },
+            { name: 'Sage Green', hex: '#C7D3C4' },
+            { name: 'Pale Pink', hex: '#EED4D3' },
+            { name: 'Pale Yellow', hex: '#F4E8C1' }
+          ].map(color => (
+            <div
+              key={color.hex}
+              onClick={() => setCardColor(color.hex)}
+              className={`w-10 h-10 rounded-full cursor-pointer shadow-sm border-2 transition-transform ${cardColor === color.hex ? 'border-stone-400 scale-110' : 'border-stone-200 hover:scale-105'}`}
+              style={{ backgroundColor: color.hex }}
+              title={color.name}
+            />
+          ))}
+        </div>
       </div>
 
       <button 

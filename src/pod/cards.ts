@@ -109,7 +109,8 @@ export async function getCards(podRoot: string, fetchFn: typeof fetch): Promise<
              const message = getStringNoLocale(cardThing, VOCAB.CM.message) || undefined;
              const fields = getUrlAll(cardThing, VOCAB.CM.hasField);
              const background = getUrlAll(cardThing, VOCAB.CM.hasBackground)[0];
-             cards.push({ url, label, fields, background, message });
+             const color = getStringNoLocale(cardThing, VOCAB.CM.cardColor) || undefined;
+             cards.push({ url, label, fields, background, message, color });
           }
         } catch(e) {
            console.warn("Could not read card at", url);
@@ -126,7 +127,7 @@ export async function getCards(podRoot: string, fetchFn: typeof fetch): Promise<
 /**
  * Save a new cm:Card mapping
  */
-export async function saveCard(podRoot: string, cardName: string, label: string, fields: string[], background: string | undefined, message: string | undefined, fetchFn: typeof fetch): Promise<string> {
+export async function saveCard(podRoot: string, cardName: string, label: string, fields: string[], background: string | undefined, message: string | undefined, color: string | undefined, fetchFn: typeof fetch): Promise<string> {
   const cleanName = cardName.toLowerCase().replace(/[^a-z0-9]/g, '');
   const cardUrl = `${podRoot}callme/cards/${cleanName}.ttl`;
 
@@ -136,6 +137,10 @@ export async function saveCard(podRoot: string, cardName: string, label: string,
 
   if (message) {
     cardThing = cardThing.addStringNoLocale(VOCAB.CM.message, message);
+  }
+
+  if (color) {
+    cardThing = cardThing.addStringNoLocale(VOCAB.CM.cardColor, color);
   }
 
   for (const f of fields) {

@@ -119,17 +119,17 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDe
   const textFields = card.fields.filter(f => f !== PHOTO_PREDICATE);
 
   if (loading) {
-    return <div className="animate-pulse bg-white rounded-2xl h-32 w-full border border-stone-200"></div>;
+    return <div className="animate-pulse bg-white rounded-none h-32 w-full border border-stone-200"></div>;
   }
 
   return (
     <div 
-      className="border border-stone-200 rounded-2xl p-6 shadow-xl relative overflow-hidden group"
+      className="border border-stone-200 rounded-none p-6 shadow-xl relative overflow-hidden group"
       style={bgDataUrl ? {
         backgroundImage: `url(${bgDataUrl})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-      } : { backgroundColor: 'white' }}
+      } : { backgroundColor: card.color || 'white' }}
     >
       {bgDataUrl && <div className="absolute inset-0 bg-black/60 z-0"></div>}
       <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none fade-in z-0"></div>
