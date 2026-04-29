@@ -114,16 +114,16 @@ export const ContactsScreen: React.FC<ContactsProps> = ({ onBack }) => {
         </button>
 
         <div className="flex items-center space-x-3 mb-8">
-          <div className="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-stone-500/10 text-stone-500 rounded-2xl flex items-center justify-center">
             <Users size={24} />
           </div>
           <h2 className="text-3xl font-bold tracking-tight">Contacts</h2>
         </div>
 
         <form onSubmit={handleAdd} className="mb-10 bg-white border border-stone-200 rounded-2xl p-5 shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+          <div className="absolute top-0 right-0 w-32 h-32 bg-stone-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
           <h3 className="text-lg font-semibold mb-4 relative z-10 flex items-center">
-            <UserPlus size={18} className="mr-2 text-blue-400" />
+            <UserPlus size={18} className="mr-2 text-stone-400" />
             Add Contact
           </h3>
           {error && <div className="text-red-400 text-sm mb-4 bg-red-500/10 p-3 rounded-lg">{error}</div>}
@@ -135,14 +135,14 @@ export const ContactsScreen: React.FC<ContactsProps> = ({ onBack }) => {
                 value={newWebId}
                 onChange={e => setNewWebId(e.target.value)}
                 placeholder="https://alice.example.com/profile/card#me"
-                className="w-full bg-stone-50 border border-stone-300 rounded-xl py-3 pl-9 pr-4 text-stone-800 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                className="w-full bg-stone-50 border border-stone-300 rounded-xl py-3 pl-9 pr-4 text-stone-800 text-sm focus:outline-none focus:border-stone-500 focus:ring-1 focus:ring-stone-500 transition-colors"
                 required
               />
             </div>
             <button 
               type="submit"
               disabled={adding || !newWebId}
-              className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium py-3 px-4 rounded-xl flex justify-center items-center transition-colors"
+              className="bg-stone-600 hover:bg-stone-500 disabled:opacity-50 text-white font-medium py-3 px-4 rounded-xl flex justify-center items-center transition-colors"
             >
               {adding ? <Loader2 className="animate-spin" size={20} /> : 'Add via WebID'}
             </button>
@@ -173,7 +173,7 @@ export const ContactsScreen: React.FC<ContactsProps> = ({ onBack }) => {
                 </div>
                 <button
                   onClick={() => openSharePicker(c)}
-                  className="w-9 h-9 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center hover:bg-blue-500/20 transition-colors shrink-0"
+                  className="w-9 h-9 rounded-full bg-stone-500/10 text-stone-500 flex items-center justify-center hover:bg-stone-500/20 transition-colors shrink-0"
                   title="Share a card"
                 >
                   <Send size={16} />
@@ -217,7 +217,7 @@ export const ContactsScreen: React.FC<ContactsProps> = ({ onBack }) => {
                         onClick={() => setSelectedCard(c.url)}
                         className={`w-full text-left p-4 rounded-xl border transition-colors flex items-center justify-between ${
                           selectedCard === c.url
-                            ? 'bg-blue-500/10 border-blue-500'
+                            ? 'bg-stone-500/10 border-stone-500'
                             : 'bg-stone-50 border-stone-200 hover:border-stone-400'
                         }`}
                       >
@@ -226,7 +226,7 @@ export const ContactsScreen: React.FC<ContactsProps> = ({ onBack }) => {
                           <div className="text-xs text-stone-500">{c.fields.length} fields{c.background ? ' · has background' : ''}{c.message ? ' · has message' : ''}</div>
                         </div>
                         {selectedCard === c.url && (
-                          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                          <div className="w-6 h-6 bg-stone-500 rounded-full flex items-center justify-center">
                             <Check size={14} className="text-white" />
                           </div>
                         )}
@@ -244,7 +244,7 @@ export const ContactsScreen: React.FC<ContactsProps> = ({ onBack }) => {
                 <button
                   onClick={handleShare}
                   disabled={!selectedCard || sharing}
-                  className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium py-4 px-4 rounded-xl flex items-center justify-center transition-colors"
+                  className="w-full bg-stone-600 hover:bg-stone-500 disabled:opacity-50 text-white font-medium py-4 px-4 rounded-xl flex items-center justify-center transition-colors"
                 >
                   {sharing ? <Loader2 className="animate-spin mr-2" size={20} /> : <Send size={20} className="mr-2" />}
                   Share Card

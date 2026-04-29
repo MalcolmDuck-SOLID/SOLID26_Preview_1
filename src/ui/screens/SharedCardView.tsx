@@ -51,7 +51,7 @@ export const SharedCardView: React.FC<SharedCardViewProps> = ({ cardUrl, fromWeb
 
         <div className="flex items-center space-x-3 mb-8">
           <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-stone-200">
-            <TramFront size={20} className="text-blue-500" />
+            <TramFront size={20} className="text-stone-500" />
           </div>
           <div>
             <h1 className="text-xl font-bold tracking-tight">Call Me</h1>
@@ -65,7 +65,7 @@ export const SharedCardView: React.FC<SharedCardViewProps> = ({ cardUrl, fromWeb
 
         {!isLoggedIn ? (
           <div className="bg-white border border-stone-200 rounded-2xl p-8 shadow-xl text-center">
-            <LogIn size={32} className="mx-auto mb-4 text-blue-500" />
+            <LogIn size={32} className="mx-auto mb-4 text-stone-500" />
             <h3 className="text-lg font-bold mb-2">Log in to view this card</h3>
             <p className="text-sm text-stone-500 mb-6">
               This card was shared with you on Solid. Log in with your WebID to see it.

@@ -7,7 +7,7 @@
 /* Base styles for the dark mode */
 @layer base {
   body {
-    @apply bg-stone-50 text-stone-900 antialiased min-h-screen font-sans selection:bg-blue-500/30;
+    @apply bg-stone-50 text-stone-900 antialiased min-h-screen font-sans selection:bg-stone-500/30;
   }
 }
 

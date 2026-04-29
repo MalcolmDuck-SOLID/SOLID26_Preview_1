@@ -71,7 +71,7 @@ export const MatchSheet: React.FC<MatchSheetProps> = ({ matches, onClose }) => {
                     key={m.contact}
                     onClick={() => setSelectedMatch(m)}
                     className={`w-full flex flex-col text-left p-3 rounded-xl border transition-colors ${
-                      selectedMatch?.contact === m.contact ? 'bg-blue-500/10 border-blue-500' : 'bg-stone-100 border-stone-300 hover:border-zinc-500'
+                      selectedMatch?.contact === m.contact ? 'bg-stone-500/10 border-stone-500' : 'bg-stone-100 border-stone-300 hover:border-zinc-500'
                     }`}
                   >
                     <span className="font-medium text-stone-700 truncate">{m.contact}</span>
@@ -91,7 +91,7 @@ export const MatchSheet: React.FC<MatchSheetProps> = ({ matches, onClose }) => {
                     key={c.url}
                     onClick={() => setSelectedCard(c.url)}
                     className={`shrink-0 px-4 py-2 rounded-full border transition-colors ${
-                      selectedCard === c.url ? 'bg-blue-500 text-white border-blue-400' : 'bg-stone-100 text-stone-600 border-stone-300 hover:border-zinc-500'
+                      selectedCard === c.url ? 'bg-stone-500 text-white border-stone-400' : 'bg-stone-100 text-stone-600 border-stone-300 hover:border-zinc-500'
                     }`}
                   >
                     {c.label}
@@ -103,7 +103,7 @@ export const MatchSheet: React.FC<MatchSheetProps> = ({ matches, onClose }) => {
             <button 
               onClick={handleShare}
               disabled={!selectedMatch || !selectedCard || sharing}
-              className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium py-4 px-4 rounded-xl flex items-center justify-center transition-colors"
+              className="w-full bg-stone-600 hover:bg-stone-500 disabled:opacity-50 text-white font-medium py-4 px-4 rounded-xl flex items-center justify-center transition-colors"
             >
               {sharing ? <Loader2 className="animate-spin mr-2" size={20} /> : <Send size={20} className="mr-2" />}
               Share instantly

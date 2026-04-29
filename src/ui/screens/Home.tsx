@@ -62,7 +62,7 @@ export const Home = () => {
   if (bootstrapping) {
     return (
       <div className="min-h-screen bg-stone-50 flex flex-col items-center justify-center text-stone-900">
-        <Loader2 className="animate-spin mb-4 text-blue-500" size={32} />
+        <Loader2 className="animate-spin mb-4 text-stone-500" size={32} />
         <p className="text-stone-500">Loading your profile data...</p>
       </div>
     );
@@ -81,21 +81,21 @@ export const Home = () => {
       <header className="max-w-md mx-auto flex items-center justify-between py-6">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-stone-200">
-            <Feather size={20} className="text-blue-500" />
+            <Feather size={20} className="text-stone-500" />
           </div>
-          <h1 className="text-xl font-bold tracking-tight">Bunbary</h1>
+          <h1 className="text-2xl font-serif">Bunbary</h1>
         </div>
         <div className="flex items-center space-x-2">
           <button 
             onClick={() => setShowInbox(true)}
-            className="w-10 h-10 bg-white hover:bg-stone-100 rounded-xl flex items-center justify-center text-stone-500 hover:text-blue-400 transition-colors"
+            className="w-10 h-10 bg-white hover:bg-stone-100 rounded-xl flex items-center justify-center text-stone-500 hover:text-stone-400 transition-colors"
             title="Inbox"
           >
             <InboxIcon size={18} />
           </button>
           <button 
             onClick={() => setShowContacts(true)}
-            className="w-10 h-10 bg-white hover:bg-stone-100 rounded-xl flex items-center justify-center text-stone-500 hover:text-blue-400 transition-colors"
+            className="w-10 h-10 bg-white hover:bg-stone-100 rounded-xl flex items-center justify-center text-stone-500 hover:text-stone-400 transition-colors"
             title="Contacts"
           >
             <Users size={18} />
@@ -114,12 +114,12 @@ export const Home = () => {
         {currentCity && matchStatus === "done" && matches.length > 0 && (
           <div 
             onClick={() => setShowMatchSheet(true)}
-            className="mb-8 bg-blue-500/10 border border-blue-500/30 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:bg-blue-500/20 transition-colors"
+            className="mb-8 bg-stone-500/10 border border-stone-500/30 rounded-2xl p-4 flex items-center justify-between cursor-pointer hover:bg-stone-500/20 transition-colors"
           >
             <div className="flex items-center space-x-3">
               <span className="text-2xl">📍</span>
               <div>
-                <h4 className="font-semibold text-blue-400">{currentCity} — away from home</h4>
+                <h4 className="font-semibold text-stone-400">{currentCity} — away from home</h4>
                 <p className="text-sm text-stone-600">You have {matches.length} contacts here. Want to say hi?</p>
               </div>
             </div>
@@ -144,7 +144,7 @@ export const Home = () => {
             {cards.length > 0 && (
               <button 
                 onClick={() => setShowBuilder(false)}
-                className="text-blue-400 text-sm mb-4 font-medium"
+                className="text-stone-400 text-sm mb-4 font-medium"
               >
                 ← Back to cards
               </button>
@@ -160,7 +160,7 @@ export const Home = () => {
               <h3 className="text-xl font-semibold">Your Cards</h3>
               <button 
                 onClick={() => setShowBuilder(true)}
-                className="w-8 h-8 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center hover:bg-blue-500/20 transition-colors"
+                className="w-8 h-8 rounded-full bg-stone-500/10 text-stone-400 flex items-center justify-center hover:bg-stone-500/20 transition-colors"
               >
                 <Plus size={16} />
               </button>

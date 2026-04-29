@@ -132,7 +132,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDe
       } : { backgroundColor: card.color || 'white' }}
     >
       {bgDataUrl && <div className="absolute inset-0 bg-black/60 z-0"></div>}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none fade-in z-0"></div>
+      <div className="absolute top-0 right-0 w-32 h-32 bg-stone-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none fade-in z-0"></div>
       
       <div className="flex justify-between items-start mb-4 relative z-10">
         <div className="flex items-center space-x-3">
@@ -146,7 +146,7 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDe
           <h3 className={`text-xl font-bold ${bgDataUrl ? 'text-white' : 'text-stone-800'}`}>{card.label}</h3>
         </div>
         <div className="flex items-center space-x-2">
-          <div className="bg-blue-500/10 text-blue-400 text-xs px-2 py-1 flex items-center justify-center rounded border border-blue-500/20 h-6">
+          <div className="bg-stone-500/10 text-stone-400 text-xs px-2 py-1 flex items-center justify-center rounded border border-stone-500/20 h-6">
             Card
           </div>
           {onDelete && (

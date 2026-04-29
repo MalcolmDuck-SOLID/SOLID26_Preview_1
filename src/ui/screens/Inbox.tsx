@@ -97,7 +97,7 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
         </button>
 
         <div className="flex items-center space-x-3 mb-6">
-          <div className="w-12 h-12 bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center">
+          <div className="w-12 h-12 bg-stone-500/10 text-stone-500 rounded-2xl flex items-center justify-center">
             <InboxIcon size={24} />
           </div>
           <h2 className="text-3xl font-bold tracking-tight">Inbox</h2>
@@ -108,7 +108,7 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
           <button
             onClick={() => setTab('received')}
             className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-              tab === 'received' ? 'bg-blue-500 text-white' : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-50'
+              tab === 'received' ? 'bg-stone-500 text-white' : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-50'
             }`}
           >
             <InboxIcon size={14} className="inline mr-1.5 -mt-0.5" />
@@ -117,7 +117,7 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
           <button
             onClick={() => setTab('sent')}
             className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-              tab === 'sent' ? 'bg-blue-500 text-white' : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-50'
+              tab === 'sent' ? 'bg-stone-500 text-white' : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-50'
             }`}
           >
             <Send size={14} className="inline mr-1.5 -mt-0.5" />

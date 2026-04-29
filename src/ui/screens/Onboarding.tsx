@@ -118,7 +118,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
           type="text"
           value={cardName}
           onChange={(e) => setCardName(e.target.value)}
-          className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 px-4 text-stone-800 focus:outline-none focus:border-blue-500"
+          className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 px-4 text-stone-800 focus:outline-none focus:border-stone-500"
           placeholder="e.g. Personal, Professional, Dating"
         />
       </div>
@@ -128,7 +128,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         <textarea 
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 px-4 text-stone-800 focus:outline-none focus:border-blue-500"
+          className="w-full bg-stone-50 border border-stone-200 rounded-xl py-3 px-4 text-stone-800 focus:outline-none focus:border-stone-500"
           placeholder="e.g. Hope to catch up soon!"
           rows={2}
         />
@@ -149,7 +149,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                   key={f.uri} 
                   onClick={() => toggleField(f.uri)}
                   className={`flex items-center justify-between p-4 rounded-xl cursor-pointer border transition-colors ${
-                    isSelected ? 'bg-blue-500/10 border-blue-500/30' : 'bg-stone-100/50 border-stone-200 hover:border-stone-300'
+                    isSelected ? 'bg-stone-500/10 border-stone-500/30' : 'bg-stone-100/50 border-stone-200 hover:border-stone-300'
                   }`}
                 >
                   <div>
@@ -157,7 +157,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                     <div className="text-xs text-stone-9000 truncate max-w-[200px]">{f.value}</div>
                   </div>
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                    isSelected ? 'bg-blue-500 text-white' : 'bg-stone-200 text-transparent'
+                    isSelected ? 'bg-stone-500 text-white' : 'bg-stone-200 text-transparent'
                   }`}>
                     <Check size={14} />
                   </div>
@@ -177,7 +177,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
         ) : (
            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
               <div 
-                className={`w-20 h-20 shrink-0 rounded-xl cursor-pointer border-2 shadow-sm flex items-center justify-center transition-all ${selectedBackground === null ? 'border-blue-500 bg-stone-100' : 'border-stone-200 bg-white hover:border-stone-400'}`}
+                className={`w-20 h-20 shrink-0 rounded-xl cursor-pointer border-2 shadow-sm flex items-center justify-center transition-all ${selectedBackground === null ? 'border-stone-500 bg-stone-100' : 'border-stone-200 bg-white hover:border-stone-400'}`}
                 onClick={() => { setSelectedBackground(null); if (!cardColor) setCardColor('#F0EAD6'); }}
               >
                  <span className="text-xs text-stone-500">None</span>
@@ -188,7 +188,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
                    src={bgBlobUrls[bg] || ''} 
                    alt="Background option"
                    onClick={() => { setSelectedBackground(bg); setCardColor(''); }}
-                   className={`w-20 h-20 shrink-0 rounded-xl cursor-pointer object-cover shadow-sm border-2 transition-all ${selectedBackground === bg ? 'border-blue-500' : 'border-stone-200 hover:border-stone-400'}`} 
+                   className={`w-20 h-20 shrink-0 rounded-xl cursor-pointer object-cover shadow-sm border-2 transition-all ${selectedBackground === bg ? 'border-stone-500' : 'border-stone-200 hover:border-stone-400'}`} 
                  />
               ))}
            </div>
@@ -219,7 +219,7 @@ export const Onboarding: React.FC<OnboardingProps> = ({ onComplete }) => {
       <button 
         onClick={handleSave}
         disabled={saving || !cardName}
-        className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium py-4 px-4 rounded-xl flex items-center justify-center transition-colors"
+        className="w-full bg-stone-600 hover:bg-stone-500 disabled:opacity-50 text-white font-medium py-4 px-4 rounded-xl flex items-center justify-center transition-colors"
       >
         {saving ? <Loader2 className="animate-spin" size={20} /> : <><Plus size={20} className="mr-2" /> Save Card</>}
       </button>
