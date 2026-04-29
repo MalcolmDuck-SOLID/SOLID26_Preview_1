@@ -125,6 +125,10 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
           </button>
         </div>
 
+        <div className="mb-6 text-[10px] text-stone-400 uppercase tracking-widest text-center">
+          Fold Key: Left = Long Visit · Right = Short Visit
+        </div>
+
         {loading ? (
           <div className="flex justify-center p-8 text-stone-500"><Loader2 className="animate-spin" size={32} /></div>
         ) : currentShares.length === 0 ? (
