@@ -4,6 +4,8 @@ import { getPodRoot } from '../../pod/bootstrap';
 import { getContacts, addContact } from '../../pod/contacts';
 import { getCards } from '../../pod/cards';
 import { shareCard } from '../../pod/shares';
+import { getSolidDataset, getThing, getStringNoLocale, getUrl } from '@inrupt/solid-client';
+import { VOCAB } from '../../vocab';
 import type { Contact, Card } from '../../types';
 import { Loader2, UserPlus, Users, Link as LinkIcon, Check, ArrowLeft, Send, X } from 'lucide-react';
 
@@ -34,6 +36,53 @@ export const ContactsScreen: React.FC<ContactsProps> = ({ onBack }) => {
       if (root) {
         const data = await getContacts(root, session.fetch);
         setContacts(data);
+        
+        // Background enrichment
+        data.forEach(async (c) => {
+          try {
+            let enrichedName = c.name;
+            let enrichedLocation = c.location;
+            
+            // 1. Profile fallback (vcard:fn, vcard:locality)
+            try {
+              const profileDs = await getSolidDataset(c.webId, { fetch: session.fetch });
+              const profile = getThing(profileDs, c.webId);
+              if (profile) {
+                if (!enrichedName) {
+                  enrichedName = getStringNoLocale(profile, "http://www.w3.org/2006/vcard/ns#fn") || 
+                                 getStringNoLocale(profile, "http://xmlns.com/foaf/0.1/name") || 
+                                 undefined;
+                }
+                const addressUrl = getUrl(profile, "http://www.w3.org/2006/vcard/ns#hasAddress");
+                if (addressUrl) {
+                  const addressThing = getThing(profileDs, addressUrl);
+                  if (addressThing) {
+                    enrichedLocation = getStringNoLocale(addressThing, "http://www.w3.org/2006/vcard/ns#locality") || enrichedLocation;
+                  }
+                }
+              }
+            } catch (e) { /* ignore profile read err */ }
+            
+            // 2. Live location
+            try {
+              const parsed = new URL(c.webId);
+              const podRoot = c.webId.includes('/profile/card') ? c.webId.replace('/profile/card#me', '/').replace('/profile/card', '/') : `${parsed.origin}/`;
+              const locUrl = `${podRoot}callme/location.ttl`;
+              const locDs = await getSolidDataset(locUrl, { fetch: session.fetch });
+              const locThing = getThing(locDs, `${locUrl}#location`);
+              if (locThing) {
+                const liveLoc = getStringNoLocale(locThing, VOCAB.CM.currentCity);
+                if (liveLoc) enrichedLocation = liveLoc;
+              }
+            } catch (e) { /* ignore live location err */ }
+            
+            if (enrichedName !== c.name || enrichedLocation !== c.location) {
+              setContacts(prev => prev.map(contact => 
+                contact.webId === c.webId ? { ...contact, name: enrichedName || contact.name, location: enrichedLocation } : contact
+              ));
+            }
+          } catch (e) { /* ignore */ }
+        });
       }
     } catch (e) {
       console.error(e);
@@ -169,7 +218,14 @@ export const ContactsScreen: React.FC<ContactsProps> = ({ onBack }) => {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="font-medium text-stone-800 truncate">{c.name || 'Unknown Name'}</div>
-                  <div className="text-xs text-stone-500 truncate">{c.webId}</div>
+                  <div className="text-xs text-stone-500 truncate flex items-center space-x-2">
+                    <span className="truncate max-w-[120px]">{c.webId.split('/').slice(-2, -1)[0] || c.webId}</span>
+                    {c.location && (
+                      <span className="text-[10px] uppercase tracking-widest text-stone-400 bg-stone-100 px-1.5 py-0.5 rounded-none shrink-0 border border-stone-200">
+                        {c.location}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <button
                   onClick={() => openSharePicker(c)}

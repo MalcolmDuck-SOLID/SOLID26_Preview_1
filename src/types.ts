@@ -23,4 +23,5 @@ export interface Contact {
   mbox?: string;        // foaf:mbox
   homepage?: string;    // foaf:homepage
   img?: string;         // foaf:img
+  location?: string;    // resolved live location or vcard:locality
 }
