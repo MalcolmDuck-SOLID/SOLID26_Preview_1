@@ -10,7 +10,8 @@ import {
   getContainedResourceUrlAll,
   getUrlAll,
   getTermAll,
-  getPropertyAll
+  getPropertyAll,
+  removeThing
 } from "@inrupt/solid-client";
 import { VOCAB } from "../vocab";
 import type { Card } from "../types";
@@ -142,7 +143,18 @@ export async function saveCard(podRoot: string, cardName: string, label: string,
   const cleanName = cardName.toLowerCase().replace(/[^a-z0-9]/g, '');
   const cardUrl = overwriteUrl || `${podRoot}callme/cards/${cleanName}.ttl`;
 
-  let cardThing = buildThing(createThing({ name: "card" }))
+  let ds;
+  try {
+    ds = await getSolidDataset(cardUrl, { fetch: fetchFn });
+    const existingThing = getThing(ds, `${cardUrl}#card`);
+    if (existingThing) {
+      ds = removeThing(ds, existingThing);
+    }
+  } catch (e) {
+    ds = createSolidDataset();
+  }
+
+  let cardThing = buildThing(createThing({ url: `${cardUrl}#card` }))
     .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", VOCAB.CM.Card)
     .addStringNoLocale(VOCAB.CM.label, label);
 
@@ -162,7 +174,7 @@ export async function saveCard(podRoot: string, cardName: string, label: string,
     cardThing = cardThing.addUrl(VOCAB.CM.hasBackground, background);
   }
 
-  const ds = setThing(createSolidDataset(), cardThing.build());
+  ds = setThing(ds, cardThing.build());
 
   await saveSolidDatasetAt(cardUrl, ds, { fetch: fetchFn });
   return cardUrl;
