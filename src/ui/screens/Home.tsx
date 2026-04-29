@@ -9,10 +9,10 @@ import { ContactsScreen } from './Contacts';
 import { MatchSheet } from './MatchSheet';
 import { InboxScreen } from './Inbox';
 import { useMatchWatcher } from '../../match/useMatchWatcher';
-import { LogOut, Loader2, TramFront, Plus, Users, Inbox as InboxIcon } from 'lucide-react';
+import { LogOut, Loader2, Feather, Plus, Users, Inbox as InboxIcon } from 'lucide-react';
 
 export const Home = () => {
-  const { session, userName, webId, logout } = useAuth();
+  const { session, webId, logout } = useAuth();
   const [bootstrapping, setBootstrapping] = useState(true);
   const [cards, setCards] = useState<Card[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -81,9 +81,9 @@ export const Home = () => {
       <header className="max-w-md mx-auto flex items-center justify-between py-6">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center border border-stone-200">
-            <TramFront size={20} className="text-blue-500" />
+            <Feather size={20} className="text-blue-500" />
           </div>
-          <h1 className="text-xl font-bold tracking-tight">Call Me</h1>
+          <h1 className="text-xl font-bold tracking-tight">Bunbary</h1>
         </div>
         <div className="flex items-center space-x-2">
           <button 
@@ -111,13 +111,6 @@ export const Home = () => {
       </header>
 
       <main className="max-w-md mx-auto mt-6">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Welcome, {userName || 'Traveler'}</h2>
-          <p className="text-stone-9000 text-sm break-all truncate">
-            {webId}
-          </p>
-        </div>
-
         {currentCity && matchStatus === "done" && matches.length > 0 && (
           <div 
             onClick={() => setShowMatchSheet(true)}
@@ -177,6 +170,15 @@ export const Home = () => {
               {cards.map(card => (
                  <CardPreview key={card.url} card={card} ownerWebId={webId!} onDelete={handleDeleteCard} />
               ))}
+            </div>
+            
+            <div className="mt-8 pt-6 border-t border-stone-200 text-center">
+              <p className="text-stone-400 text-xs break-all uppercase tracking-widest">
+                Connected to Pod
+              </p>
+              <p className="text-stone-500 text-sm break-all mt-1">
+                {webId}
+              </p>
             </div>
           </div>
         )}

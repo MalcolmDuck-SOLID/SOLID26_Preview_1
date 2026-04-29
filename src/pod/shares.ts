@@ -1,9 +1,11 @@
 import { 
   getSolidDataset, 
   getThing, 
-  getStringNoLocale, 
+  getStringNoLocale,
+  getStringNoLocaleAll,
   getUrl,
   getUrlAll,
+  getTermAll,
   getContainedResourceUrlAll,
   buildThing,
   createThing,
@@ -22,64 +24,164 @@ export interface ReceivedShare {
 }
 
 export async function shareCard(cardUrl: string, targetWebId: string, senderWebId: string, fetchFn: typeof fetch): Promise<void> {
-  // 1. Grant Read access via direct WAC .acl file
-  try {
-    const aclUrl = `${cardUrl}.acl`;
-    const aclBody = `
+  console.log("[shareCard] Starting share:", { cardUrl, targetWebId, senderWebId });
+
+  // Helper: fetch an image URL and return as base64 data URI
+  async function fetchAsBase64(url: string): Promise<string | null> {
+    try {
+      console.log("[shareCard] Fetching image:", url);
+      const res = await fetchFn(url);
+      if (!res.ok) {
+        console.warn("[shareCard] Image fetch failed:", res.status, url);
+        return null;
+      }
+      const arrayBuffer = await res.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      let binary = '';
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const base64 = btoa(binary);
+      const contentType = res.headers.get('content-type') || 'image/jpeg';
+      const dataUri = `data:${contentType};base64,${base64}`;
+      console.log("[shareCard] Image converted, size:", dataUri.length);
+      return dataUri;
+    } catch (e) {
+      console.warn("[shareCard] Image fetch error:", e);
+      return null;
+    }
+  }
+
+  // Helper: grant agent-specific read ACL
+  async function grantReadAccess(resourceUrl: string, ownerWebId: string, agentWebId: string) {
+    try {
+      const aclUrl = `${resourceUrl}.acl`;
+      const aclBody = `
 @prefix acl: <http://www.w3.org/ns/auth/acl#> .
 
 <#owner>
     a acl:Authorization ;
-    acl:agent <${senderWebId}> ;
-    acl:accessTo <${cardUrl}> ;
+    acl:agent <${ownerWebId}> ;
+    acl:accessTo <${resourceUrl}> ;
     acl:mode acl:Read, acl:Write, acl:Control .
 
-<#share-${Date.now()}>
+<#share>
     a acl:Authorization ;
-    acl:agent <${targetWebId}> ;
-    acl:accessTo <${cardUrl}> ;
+    acl:agent <${agentWebId}> ;
+    acl:accessTo <${resourceUrl}> ;
     acl:mode acl:Read .
 `;
-
-    const res = await fetchFn(aclUrl, {
-      method: "PUT",
-      headers: { "Content-Type": "text/turtle" },
-      body: aclBody
-    });
-
-    if (!res.ok) {
-      console.warn(`ACL PUT returned ${res.status}. Card may not be readable by recipient.`);
+      await fetchFn(aclUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "text/turtle" },
+        body: aclBody
+      });
+    } catch (e) {
+      console.warn(`Failed to write ACL for ${resourceUrl}`, e);
     }
-  } catch (e) {
-    console.warn("Failed to write ACL. Card may not be readable by recipient.", e);
   }
 
-  // 2. Save a local share record on OUR pod
+  // 1. Read the original card
+  console.log("[shareCard] Reading card:", cardUrl);
+  const cardDs = await getSolidDataset(cardUrl, { fetch: fetchFn });
+  const cardThing = getThing(cardDs, `${cardUrl}#card`);
+  if (!cardThing) {
+    console.error("[shareCard] Card thing not found at", `${cardUrl}#card`);
+    throw new Error("Card not found");
+  }
+
+  const label = getStringNoLocale(cardThing, VOCAB.CM.label) || "Shared Card";
+  const fields = getUrlAll(cardThing, VOCAB.CM.hasField);
+  const bgUrl = getUrl(cardThing, VOCAB.CM.hasBackground) || getStringNoLocale(cardThing, VOCAB.CM.hasBackground);
+  const message = getStringNoLocale(cardThing, VOCAB.CM.message);
+  console.log("[shareCard] Card data:", { label, fields: fields.length, bgUrl: !!bgUrl, message: !!message });
+
+  // 2. Fetch background image as base64
+  let backgroundData: string | null = null;
+  if (bgUrl) {
+    const absBgUrl = new URL(bgUrl, cardUrl).href;
+    backgroundData = await fetchAsBase64(absBgUrl);
+  }
+
+  // 3. Resolve profile fields and photo
+  const profileDocUrl = senderWebId.split('#')[0];
+  console.log("[shareCard] Reading profile:", profileDocUrl);
+  const profileDs = await getSolidDataset(profileDocUrl, { fetch: fetchFn });
+  const profile = getThing(profileDs, senderWebId);
+
+  const profileData: Record<string, string> = {};
+  let photoData: string | null = null;
+
+  if (profile) {
+    for (const field of fields) {
+      const terms = getTermAll(profile, field);
+      if (terms.length > 0) {
+        if (field === "http://www.w3.org/2006/vcard/ns#hasPhoto") {
+          const absPhotoUrl = new URL(terms[0].value, profileDocUrl).href;
+          photoData = await fetchAsBase64(absPhotoUrl);
+        } else {
+          profileData[field] = terms[0].value;
+        }
+      }
+    }
+  }
+  console.log("[shareCard] Profile data:", { fields: Object.keys(profileData).length, hasPhoto: !!photoData, hasBg: !!backgroundData });
+
+  // 4. Create the self-contained shared card copy
   const parsed = new URL(senderWebId);
-  const podRoot = senderWebId.includes('/profile/card') 
-    ? senderWebId.replace('/profile/card#me', '/') 
+  const podRoot = senderWebId.includes('/profile/card')
+    ? senderWebId.replace('/profile/card#me', '/')
     : `${parsed.origin}/`;
   
-  const shareDocUrl = `${podRoot}callme/shares/share-${Date.now()}.ttl`;
-  
-  let shareThing = buildThing(createThing({ name: "share" }))
+  const sharedCardUrl = `${podRoot}callme/shares/card-${Date.now()}.ttl`;
+
+  let sharedCard = buildThing(createThing({ name: "card" }))
+    .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", VOCAB.CM.Card)
+    .addStringNoLocale(VOCAB.CM.label, label);
+
+  for (const field of fields) {
+    sharedCard = sharedCard.addUrl(VOCAB.CM.hasField, field);
+  }
+
+  for (const [predicate, value] of Object.entries(profileData)) {
+    sharedCard = sharedCard.addStringNoLocale(VOCAB.CM.profileData, `${predicate}|||${value}`);
+  }
+
+  if (message) {
+    sharedCard = sharedCard.addStringNoLocale(VOCAB.CM.message, message);
+  }
+  if (backgroundData) {
+    sharedCard = sharedCard.addStringNoLocale(VOCAB.CM.backgroundData, backgroundData);
+  }
+  if (photoData) {
+    sharedCard = sharedCard.addStringNoLocale(VOCAB.CM.photoData, photoData);
+  }
+
+  let ds = setThing(createSolidDataset(), sharedCard.build());
+
+  const shareMeta = buildThing(createThing({ name: "share" }))
     .addUrl("http://www.w3.org/1999/02/22-rdf-syntax-ns#type", VOCAB.CM.Share)
-    .addUrl(VOCAB.CM.sharedCard, cardUrl)
+    .addUrl(VOCAB.CM.sharedCard, sharedCardUrl)
     .addUrl(VOCAB.CM.shareTarget, targetWebId)
     .addStringNoLocale(VOCAB.CM.sharedAt, new Date().toISOString())
     .build();
-  
-  const ds = setThing(createSolidDataset(), shareThing);
-  await saveSolidDatasetAt(shareDocUrl, ds, { fetch: fetchFn });
 
-  // 3. Try LDN notification to their inbox (best-effort for demo)
+  ds = setThing(ds, shareMeta);
+
+  console.log("[shareCard] Saving shared card copy:", sharedCardUrl);
+  await saveSolidDatasetAt(sharedCardUrl, ds, { fetch: fetchFn });
+
+  // 5. Grant the recipient read access to the shared copy
+  await grantReadAccess(sharedCardUrl, senderWebId, targetWebId);
+
+  // 6. Try LDN notification (best-effort)
   try {
     let inboxUrl: string | null = null;
     try {
       const contactDs = await getSolidDataset(targetWebId, { fetch: fetchFn });
-      const profile = getThing(contactDs, targetWebId);
-      if (profile) {
-        inboxUrl = getUrl(profile, "http://www.w3.org/ns/ldp#inbox");
+      const contactProfile = getThing(contactDs, targetWebId);
+      if (contactProfile) {
+        inboxUrl = getUrl(contactProfile, "http://www.w3.org/ns/ldp#inbox");
       }
     } catch { /* ignore */ }
 
@@ -94,7 +196,7 @@ export async function shareCard(cardUrl: string, targetWebId: string, senderWebI
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
 <> a cm:Share ;
-   cm:sharedCard <${cardUrl}> ;
+   cm:sharedCard <${sharedCardUrl}> ;
    cm:shareTarget <${targetWebId}> ;
    cm:sharedAt "${new Date().toISOString()}"^^xsd:dateTime .
 `;
@@ -131,7 +233,7 @@ export async function getSentShares(podRoot: string, fetchFn: typeof fetch): Pro
             shares.push({
               url,
               cardUrl,
-              senderWebId: target, // For sent shares, this is who we sent TO
+              senderWebId: target,
               sharedAt: getStringNoLocale(shareThing, VOCAB.CM.sharedAt)
             });
           }
@@ -139,7 +241,7 @@ export async function getSentShares(podRoot: string, fetchFn: typeof fetch): Pro
       } catch { /* skip unreadable */ }
     }
   } catch {
-    // Container doesn't exist yet — that's fine
+    // Container doesn't exist yet
   }
   
   return shares;
@@ -148,7 +250,6 @@ export async function getSentShares(podRoot: string, fetchFn: typeof fetch): Pro
 export async function getInboxShares(myWebId: string, fetchFn: typeof fetch): Promise<ReceivedShare[]> {
   const shares: ReceivedShare[] = [];
   
-  // Discover our own inbox
   let inboxUrl: string | null = null;
   try {
     const ds = await getSolidDataset(myWebId, { fetch: fetchFn });
@@ -193,7 +294,7 @@ export async function getInboxShares(myWebId: string, fetchFn: typeof fetch): Pr
         }
       }
     } catch {
-      // Unreadable resource or invalid
+      // Unreadable
     }
   }
 
@@ -209,12 +310,29 @@ export async function fetchRemoteCard(cardUrl: string, fetchFn: typeof fetch): P
     const ds = await getSolidDataset(cardUrl, { fetch: fetchFn });
     const cardThing = getThing(ds, `${cardUrl}#card`);
     if (cardThing) {
+      // Read embedded base64 data
+      const backgroundData = getStringNoLocale(cardThing, VOCAB.CM.backgroundData) || undefined;
+      const photoData = getStringNoLocale(cardThing, VOCAB.CM.photoData) || undefined;
+      
+      // Read pre-resolved profile data
+      const profileDataEntries = getStringNoLocaleAll(cardThing, VOCAB.CM.profileData);
+      const profileData: Record<string, string> = {};
+      for (const entry of profileDataEntries) {
+        const [predicate, value] = entry.split('|||');
+        if (predicate && value) {
+          profileData[predicate] = value;
+        }
+      }
+
       return {
         url: cardUrl,
         label: getStringNoLocale(cardThing, VOCAB.CM.label) || "Shared Card",
         fields: getUrlAll(cardThing, VOCAB.CM.hasField),
         background: getUrlAll(cardThing, VOCAB.CM.hasBackground)[0],
-        message: getStringNoLocale(cardThing, VOCAB.CM.message) || undefined
+        backgroundData,
+        message: getStringNoLocale(cardThing, VOCAB.CM.message) || undefined,
+        photoData,
+        profileData: Object.keys(profileData).length > 0 ? profileData : undefined,
       };
     }
   } catch (e) {
@@ -222,4 +340,3 @@ export async function fetchRemoteCard(cardUrl: string, fetchFn: typeof fetch): P
   }
   return null;
 }
-

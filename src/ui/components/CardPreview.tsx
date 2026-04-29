@@ -44,10 +44,12 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDe
   const [bgDataUrl, setBgDataUrl] = useState<string | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
-  // Fetch background image as authenticated blob
+  // Fetch background image — use embedded base64 or authenticated fetch
   useEffect(() => {
     async function fetchBg() {
-      if (card.background && session) {
+      if (card.backgroundData) {
+        setBgDataUrl(card.backgroundData);
+      } else if (card.background && session) {
         try {
           const res = await session.fetch(card.background);
           const blob = await res.blob();
@@ -58,12 +60,24 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDe
       }
     }
     fetchBg();
-  }, [card.background, session]);
+  }, [card.background, card.backgroundData, session]);
 
-  // Fetch profile data + photo
+  // Fetch profile data + photo — use embedded data or fetch from pod
   useEffect(() => {
     async function loadCardData() {
       if (!session) return;
+
+      // If we have pre-resolved profile data (shared card), use it directly
+      if (card.profileData) {
+        setData(card.profileData);
+        if (card.photoData) {
+          setAvatarUrl(card.photoData);
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Otherwise fetch from the owner's profile (original card)
       try {
         const dataset = await getSolidDataset(ownerWebId, { fetch: session.fetch });
         const profile = getThing(dataset, ownerWebId);
@@ -81,7 +95,6 @@ export const CardPreview: React.FC<CardPreviewProps> = ({ card, ownerWebId, onDe
           // If hasPhoto is among the fields, resolve and fetch as blob
           if (card.fields.includes(PHOTO_PREDICATE) && extracted[PHOTO_PREDICATE]) {
             try {
-              // Resolve relative URL against profile document base
               const profileDocUrl = ownerWebId.split('#')[0];
               const photoAbsUrl = new URL(extracted[PHOTO_PREDICATE], profileDocUrl).href;
               const res = await session.fetch(photoAbsUrl);
