@@ -11,6 +11,7 @@ import { InboxScreen } from './Inbox';
 import { useMatchWatcher } from '../../match/useMatchWatcher';
 import type { MatchResult } from '../../match/findMatches';
 import { getContacts } from '../../pod/contacts';
+import { getSolidDataset, getThing, getUrl, getStringNoLocale } from '@inrupt/solid-client';
 import { LogOut, Loader2, Feather, Plus, Users, Inbox as InboxIcon, MapPin } from 'lucide-react';
 
 export const Home = () => {
@@ -25,6 +26,7 @@ export const Home = () => {
   const [showMatchSheet, setShowMatchSheet] = useState(false);
   const [demoCity, setDemoCity] = useState<string | null>(null);
   const [demoMatches, setDemoMatches] = useState<MatchResult[] | null>(null);
+  const [profileLocation, setProfileLocation] = useState<string | null>(null);
 
   const { matches, currentCity, status: matchStatus } = useMatchWatcher();
 
@@ -93,6 +95,26 @@ export const Home = () => {
         try {
           await bootstrapPod(webId, session.fetch);
           await loadCards();
+          
+          try {
+            const profileDs = await getSolidDataset(webId, { fetch: session.fetch });
+            const profile = getThing(profileDs, webId);
+            if (profile) {
+              const addressUrl = getUrl(profile, "http://www.w3.org/2006/vcard/ns#hasAddress");
+              if (addressUrl) {
+                const addressThing = getThing(profileDs, addressUrl);
+                if (addressThing) {
+                  const loc = getStringNoLocale(addressThing, "http://www.w3.org/2006/vcard/ns#locality");
+                  if (loc) setProfileLocation(loc);
+                }
+              } else {
+                const loc = getStringNoLocale(profile, "http://www.w3.org/2006/vcard/ns#locality");
+                if (loc) setProfileLocation(loc);
+              }
+            }
+          } catch (e) {
+            console.warn("Could not fetch profile location", e);
+          }
         } catch (e: any) {
           setError(e.message || "Failed to bootstrap pod.");
         } finally {
@@ -129,9 +151,9 @@ export const Home = () => {
           </div>
           <div className="flex flex-col justify-center">
             <h1 className="text-2xl font-serif leading-none mt-1">Bunbary</h1>
-            {activeCity && (
+            {(demoCity || profileLocation) && (
               <span className="text-[10px] text-stone-400 uppercase tracking-wider mt-1 flex items-center">
-                <MapPin size={10} className="mr-1" /> {activeCity}
+                <MapPin size={10} className="mr-1" /> {demoCity || profileLocation}
               </span>
             )}
           </div>
