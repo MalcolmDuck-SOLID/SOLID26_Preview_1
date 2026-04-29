@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../auth/AuthContext';
+import { getSolidDataset, getThing, getStringNoLocale } from '@inrupt/solid-client';
 import type { MatchResult } from '../../match/findMatches';
 import type { Card } from '../../types';
 import { getPodRoot } from '../../pod/bootstrap';
@@ -20,6 +21,26 @@ export const MatchSheet: React.FC<MatchSheetProps> = ({ matches, onClose }) => {
   const [selectedFold, setSelectedFold] = useState<'none' | 'tl' | 'tr'>('none');
   const [sharing, setSharing] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [enrichedNames, setEnrichedNames] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (!session) return;
+    matches.forEach(async (m) => {
+      try {
+        const ds = await getSolidDataset(m.contact, { fetch: session.fetch });
+        const profile = getThing(ds, m.contact);
+        if (profile) {
+          const name = getStringNoLocale(profile, "http://www.w3.org/2006/vcard/ns#fn") || 
+                       getStringNoLocale(profile, "http://xmlns.com/foaf/0.1/name");
+          if (name) {
+            setEnrichedNames(prev => ({ ...prev, [m.contact]: name }));
+          }
+        }
+      } catch (e) {
+        // Ignore fetch errors for enrichment
+      }
+    });
+  }, [matches, session]);
 
   useEffect(() => {
     async function init() {
@@ -75,7 +96,10 @@ export const MatchSheet: React.FC<MatchSheetProps> = ({ matches, onClose }) => {
                       selectedMatch?.contact === m.contact ? 'bg-stone-500/10 border-stone-500' : 'bg-stone-100 border-stone-300 hover:border-zinc-500'
                     }`}
                   >
-                    <span className="font-medium text-stone-700 truncate">{m.contact}</span>
+                    <span className="font-medium text-stone-700 truncate">
+                      {enrichedNames[m.contact] || m.contact.split('/').slice(-2, -1)[0] || 'Contact'}
+                    </span>
+                    <span className="text-[10px] text-stone-500 truncate mb-1">{m.contact}</span>
                     <span className="text-xs text-stone-9000">Also in {m.cityName}</span>
                   </button>
                 ))}

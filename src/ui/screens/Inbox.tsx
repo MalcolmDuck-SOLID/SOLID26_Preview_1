@@ -100,7 +100,7 @@ export const InboxScreen: React.FC<InboxScreenProps> = ({ onBack }) => {
           <div className="w-12 h-12 bg-stone-500/10 text-stone-500 rounded-2xl flex items-center justify-center">
             <InboxIcon size={24} />
           </div>
-          <h2 className="text-3xl font-bold tracking-tight">Inbox</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Card Tray</h2>
         </div>
 
         {/* Tabs */}
